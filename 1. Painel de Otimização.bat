@@ -606,6 +606,7 @@ echo Limpeza concluida.
 pause
 goto menu
 
+:: Aplicar maximo desempenho
 :maximo_desempenho
 cls
 echo Aplicando esquema de máximo desempenho...
