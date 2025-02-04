@@ -3,26 +3,24 @@
 cls
 echo Escolha uma opcao:
 echo [0] Fechar Programa
-echo [1] Desativar permanentemente servicos uteis
-echo [2] Limpar Arquivos temporarios e inuteis
-echo [3] Aplicar Maximo Desempenho
-echo [4] Otimizacao Power Throttling
-echo [5] Otimizacao SSD
-echo [6] Otimizacao Internet
-echo [7] Apply General Regsitry and windows Optimizations
-echo [8] Desativar Game Mode
+echo [1] Otimizar Windows
+echo [2] Otimizar SSD
+echo [3] Otimizar Internet
+echo [4] Desativar Game Mode
+echo [5] Otimizar Power Throttling
+echo [6] Desativar Servicos
+echo [7] Limpar Arquivos
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
 
 if "%choice%"=="0" goto fechar_programa
-if "%choice%"=="1" goto desativar_servicos
-if "%choice%"=="2" goto limpar_arquivos
-if "%choice%"=="3" goto maximo_desempenho
-if "%choice%"=="4" goto otimizacao_power_throttling
-if "%choice%"=="5" goto otimizacao_ssd
-if "%choice%"=="6" goto otimizacao_internet
-if "%choice%"=="7" goto apply_general
-if "%choice%"=="8" goto desativar_game_mode
+if "%choice%"=="1" goto apply_general
+if "%choice%"=="2" goto otimizacao_ssd
+if "%choice%"=="3" goto otimizacao_internet
+if "%choice%"=="4" goto desativar_game_mode
+if "%choice%"=="5" goto otimizacao_power_throttling
+if "%choice%"=="6" goto desativar_servicos
+if "%choice%"=="7" goto limpar_arquivos
 
 echo Opcao invalida. Por favor, escolha 0, 1, 2, 3, 4 ou 5.
 pause
@@ -603,15 +601,6 @@ rd /s /q C:\$Recycle.bin
 echo Lixeira limpa.
 
 echo Limpeza concluida.
-pause
-goto menu
-
-:: Aplicar maximo desempenho
-:maximo_desempenho
-cls
-echo Aplicando esquema de máximo desempenho...
-powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
-echo Esquema de máximo desempenho aplicado com sucesso.
 pause
 goto menu
 
