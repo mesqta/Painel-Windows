@@ -10,6 +10,7 @@ echo [4] Desativar Game Mode
 echo [5] Otimizar Power Throttling
 echo [6] Desativar Servicos
 echo [7] Limpar Arquivos
+echo [8] Deletar Microsoft Edge
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
 
@@ -21,10 +22,32 @@ if "%choice%"=="4" goto desativar_game_mode
 if "%choice%"=="5" goto otimizacao_power_throttling
 if "%choice%"=="6" goto desativar_servicos
 if "%choice%"=="7" goto limpar_arquivos
+if "%choice%"=="8" goto deletar_microsoft_edge
 
-echo Opcao invalida. Por favor, escolha 0, 1, 2, 3, 4 ou 5.
+echo Opcao invalida. Por favor, escolha de 0 a 8.
 pause
 goto menu
+
+::-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+:deletar_microsoft_edge
+cls
+echo %w% - Disabling Microsoft edging  %b%
+taskkill /f /im msedge.exe >nul 2>&1
+taskkill /f /im msedge.exe /fi "IMAGENAME eq msedge.exe" >nul 2>&1
+taskkill /f /im msedge.exe /fi "IMAGENAME eq msedge.exe" >nul 2>&1
+echo Deleting Edge Directories.
+rd /s /q "C:\Program Files (x86)\Microsoft\Edge" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\EdgeCore" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\EdgeUpdate" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\EdgeWebView" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\Temp" >nul 2>&1
+echo Deleting Microsoft Edge Shortcuts.
+del "C:\Users\Public\Desktop\Microsoft Edge.lnk" >nul 2>&1
+del "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Edge.lnk" >nul 2>&1
+del "%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Microsoft Edge.lnk" >nul 2>&1
+pause
+goto menu
+::-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 :otimizacao_power_throttling
 cls
@@ -78,6 +101,51 @@ pause
 cls
 echo Continuando com as outras otimizacoes...
 echo.
+
+echo %w% - Disabling StorPort Idle%b%
+for /f "tokens=*" %%s in ('reg query "HKLM\System\CurrentControlSet\Enum" /S /F "StorPort" ^| findstr /e "StorPort"') do Reg.exe add "%%s" /v "EnableIdlePowerManagement" /t REG_DWORD /d "0" /f
+
+echo %w%- Disabling Link State Power Managment %b%
+echo %w%- Disabling HDD Parking %b%
+echo %w%- Disabling HIPM %b%
+echo %w%- Disabling DIPM %b%
+for %%i in (EnableHIPM EnableDIPM EnableHDDParking) do for /f %%a in ('reg query "HKLM\SYSTEM\CurrentControlSet\Services" /s /f "%%i" ^| findstr "HKEY"') do Reg.exe add "%%a" /v "%%i" /t REG_DWORD /d "0" /f
+
+echo %w% - Disabling GPU Energy Driver%b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\GpuEnergyDrv" /v "Start" /t REG_DWORD /d "2" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\GpuEnergyDr" /v "Start" /t REG_DWORD /d "2" /f 
+
+echo %w% - Disabling CoalescingTimerInterval%b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager" /v "CoalescingTimerInterval" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v "CoalescingTimerInterval" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "CoalescingTimerInterval" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v "CoalescingTimerInterval" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Executive" /v "CoalescingTimerInterval" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\ModernSleep" /v "CoalescingTimerInterval" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "CoalescingTimerInterval" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "PlatformAoAcOverride" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "EnergyEstimationEnabled" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "EventProcessorEnabled" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "CsEnabled" /t REG_DWORD /d "0" /f 
+
+echo %w% - Disabling Power Throttling%b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v "PowerThrottlingOff" /t REG_DWORD /d "1" /f 
+
+echo %w% - Disabling Fast Startup (this is bad for your pc, even if it speeds up booting by a few seconds, thats why the utility disables it) %b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v "HiberbootEnabled" /t REG_DWORD /d "0" /f 
+
+echo %w% - Disabling Hibernation%b%
+powercfg /h off
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "HibernateEnabled" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "SleepReliabilityDetailedDiagnostics" /t REG_DWORD /d "0" /f 
+
+echo %w% - Disabling Sleep Study (you should only shutdown your pc, dont put it to sleep, its bad for you pc) %b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v "SleepStudyDisabled" /t REG_DWORD /d "1" /f 
+
+echo %w% - Disabling Energy Logging + Power Telemetry%b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\TaggedEnergy" /v "DisablingTaggedEnergyLogging" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\TaggedEnergy" /v "TelemetryMaxApplication" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\TaggedEnergy" /v "TelemetryMaxTagPerApplication" /t REG_DWORD /d "0" /f
 
 :: Disable Timer Coalescing
 echo Desabilitando Timer Coalescing...
