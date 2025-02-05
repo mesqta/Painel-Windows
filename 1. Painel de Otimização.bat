@@ -11,6 +11,7 @@ echo [5] Otimizar Power Throttling
 echo [6] Desativar Servicos
 echo [7] Limpar Arquivos
 echo [8] Deletar Microsoft Edge
+echo [9] Deletar Planos de Energia
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
 
@@ -23,12 +24,22 @@ if "%choice%"=="5" goto otimizacao_power_throttling
 if "%choice%"=="6" goto desativar_servicos
 if "%choice%"=="7" goto limpar_arquivos
 if "%choice%"=="8" goto deletar_microsoft_edge
+if "%choice%"=="9" goto deletar_planos_energia
 
-echo Opcao invalida. Por favor, escolha de 0 a 8.
+echo Opcao invalida. Por favor, escolha de 0 a 9.
 pause
 goto menu
 
 ::-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+:deletar_planos_energia
+cls
+echo %w% - Deleting useless power plans%b%
+powercfg -delete 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+powercfg -delete 381b4222-f694-41f0-9685-ff5bb260df2e
+powercfg -delete a1841308-3541-4fab-bc81-f71556f20b4a
+pause
+goto menu
+
 :deletar_microsoft_edge
 cls
 echo %w% - Disabling Microsoft edging  %b%
@@ -146,103 +157,6 @@ echo %w% - Disabling Energy Logging + Power Telemetry%b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\TaggedEnergy" /v "DisablingTaggedEnergyLogging" /t REG_DWORD /d "1" /f 
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\TaggedEnergy" /v "TelemetryMaxApplication" /t REG_DWORD /d "0" /f 
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\TaggedEnergy" /v "TelemetryMaxTagPerApplication" /t REG_DWORD /d "0" /f
-
-:: Disable Timer Coalescing
-echo Desabilitando Timer Coalescing...
-powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE 0
-powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR PERFBOOSTMODE 0
-
-:: Disable Power Telemetry
-echo Desabilitando Power Telemetry...
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "AllowTelemetry" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" /v "AllowTelemetry" /t REG_DWORD /d "0" /f
-
-:: Disable Hibernation
-echo Desabilitando Hibernacao...
-powercfg /h off
-
-:: Disable Fast Startup
-echo Desabilitando Fast Startup...
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v "HiberbootEnabled" /t REG_DWORD /d "0" /f
-
-:: Disable Connected Standby
-echo Desabilitando Connected Standby...
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "CsEnabled" /t REG_DWORD /d "0" /f
-
-:: Disable USB Selective Suspend
-echo Desabilitando USB Selective Suspend...
-powercfg /setacvalueindex SCHEME_CURRENT SUB_USB USBSELECTIVESUSPEND 0
-powercfg /setdcvalueindex SCHEME_CURRENT SUB_USB USBSELECTIVESUSPEND 0
-
-:: Disable Link State Power Management
-echo Desabilitando Link State Power Management...
-powercfg /setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 0
-powercfg /setdcvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 0
-
-:: Disable Adaptive Brightness
-echo Desabilitando Adaptive Brightness...
-powercfg /setacvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 0
-powercfg /setdcvalueindex SCHEME_CURRENT SUB_VIDEO ADAPTBRIGHT 0
-
-:: Apply Power Plan Settings
-echo Aplicando configuracoes do Plano de Energia...
-powercfg /hibernate off
-powercfg /change standby-timeout-ac 0
-powercfg /change standby-timeout-dc 0
-powercfg /change disk-timeout-ac 0
-powercfg /change disk-timeout-dc 0
-powercfg /change monitor-timeout-ac 0
-powercfg /change monitor-timeout-dc 0
-
-
-
-:: Disable Power Throttling for Background Tasks
-echo Desabilitando Power Throttling para tarefas em segundo plano...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ControlPanel\NameSpace\{025A5937-A6BE-4686-A844-36FE4BEC8B6D}" /v "SystemSettings_PowerThrottling" /t REG_DWORD /d "0" /f
-
-:: Disable Power Throttling for Specific Apps
-echo Desabilitando Power Throttling para aplicativos especificos...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "SystemResponsiveness" /t REG_DWORD /d "0" /f
-
-:: Disable Power Throttling for Games
-echo Desabilitando Power Throttling para jogos...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "GPU Priority" /t REG_DWORD /d "8" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Priority" /t REG_DWORD /d "6" /f
-
-:: Disable Power Throttling for Audio
-echo Desabilitando Power Throttling para audio...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v "GPU Priority" /t REG_DWORD /d "8" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v "Priority" /t REG_DWORD /d "6" /f
-
-:: Disable Power Throttling for Video
-echo Desabilitando Power Throttling para video...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Video" /v "GPU Priority" /t REG_DWORD /d "8" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Video" /v "Priority" /t REG_DWORD /d "6" /f
-
-:: Disable Power Throttling for Display
-echo Desabilitando Power Throttling para display...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Display" /v "GPU Priority" /t REG_DWORD /d "8" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Display" /v "Priority" /t REG_DWORD /d "6" /f
-
-:: Disable Power Throttling for Network
-echo Desabilitando Power Throttling para rede...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Network" /v "GPU Priority" /t REG_DWORD /d "8" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Network" /v "Priority" /t REG_DWORD /d "6" /f
-
-:: Disable Power Throttling for System
-echo Desabilitando Power Throttling para sistema...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\System" /v "GPU Priority" /t REG_DWORD /d "8" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\System" /v "Priority" /t REG_DWORD /d "6" /f
-
-:: Disable Power Throttling for Background Tasks
-echo Desabilitando Power Throttling para tarefas em segundo plano...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Background" /v "GPU Priority" /t REG_DWORD /d "8" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Background" /v "Priority" /t REG_DWORD /d "6" /f
-
-:: Disable Power Throttling for Low Power Mode
-echo Desabilitando Power Throttling para modo de baixa energia...
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\LowPower" /v "GPU Priority" /t REG_DWORD /d "8" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\LowPower" /v "Priority" /t REG_DWORD /d "6" /f
 
 echo Otimizacoes de Power Throttling concluidas com sucesso!
 pause
