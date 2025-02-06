@@ -3,7 +3,7 @@
 cls
 echo Escolha uma opcao:
 echo [1] Desativar Servicos
-echo [2] Apply General Regsitry and windows Optimizations
+echo [2] Aplicar otimizacoes gerais do Registro e do Windows
 echo [3] Power Optimizations
 echo [4] USB Optimizations
 echo [5] System Debloat
