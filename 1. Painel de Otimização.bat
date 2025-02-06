@@ -38,7 +38,7 @@ exit
 
 :reiniciar
 cls
-echo O computador será reiniciado em 10 segundos. Feche todos os programas abertos.
+echo O computador será reiniciado em 10 segundos. Feche todos os programas abertos...
 timeout /t 10
 shutdown /r /t 0
 pause
