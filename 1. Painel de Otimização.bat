@@ -82,7 +82,6 @@ net stop SCardSvr
 sc config WerSvc start= disabled
 net stop WerSvc
 
-:: Desabilitar o servico WinSAT
 sc config WinSAT start= disabled
 net stop WinSAT
 
