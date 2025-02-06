@@ -43,9 +43,7 @@ timeout /t 10
 shutdown /r /t 0
 pause
 goto menu
-
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
-
 :desativar_servicos
 cls
 echo Desabilitando o servico SysMain (SuperFetch) e outros servicos...
