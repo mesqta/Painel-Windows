@@ -10,6 +10,7 @@ echo [4] Power Optimizations
 echo [5] USB Optimizations
 echo [6] System Debloat
 echo [7] Storage Optimizations
+echo [8] Reiniciar
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
 
@@ -21,8 +22,9 @@ if "%choice%"=="4" goto power_optimizations
 if "%choice%"=="5" goto usb_optimizations
 if "%choice%"=="6" goto system_debloat
 if "%choice%"=="7" goto storage_optimizations
+if "%choice%"=="8" goto reiniciar
 
-echo Opcao invalida. Por favor, escolha de 0 a 9.
+echo Opcao invalida. Por favor, escolha de 0 a 8.
 pause
 goto menu
 
@@ -33,6 +35,14 @@ cls
 echo Fechando o programa...
 pause
 exit
+
+:reiniciar
+cls
+echo O computador será reiniciado em 10 segundos. Feche todos os programas abertos.
+timeout /t 10
+shutdown /r /t 0
+pause
+goto menu
 
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 
