@@ -52,7 +52,6 @@ echo Desabilitando o servico SysMain (SuperFetch) e outros servicos...
 sc config SysMain start= disabled
 net stop SysMain
 
-:: Desabilitar outros servicos
 sc config WSearch start= disabled
 net stop WSearch
 
