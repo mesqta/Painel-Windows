@@ -12,7 +12,6 @@ echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [A] Aplicar Todas as otimizacoes
 echo [L] Limpar Arquivos
-echo [R] Reiniciar
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
@@ -26,7 +25,6 @@ if "%choice%"=="6" goto storage_optimizations
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="A" goto apply_all_optimizations
 if /I "%choice%"=="L" goto limpar_arquivos
-if /I "%choice%"=="R" goto reiniciar
 
 echo Opcao invalida. Por favor, escolha de 0 a 6.
 pause
@@ -37,14 +35,6 @@ cls
 echo Fechando o programa...
 pause
 exit
-
-:reiniciar
-cls
-echo O computador será reiniciado em 10 segundos. Feche todos os programas abertos...
-timeout /t 10
-shutdown /r /t 0
-pause
-goto menu
 
 :apply_all_optimizations
 cls
