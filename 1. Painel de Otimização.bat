@@ -14,21 +14,21 @@ echo [L] Limpar Arquivos
 echo [R] Reiniciar
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
-
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if "%choice%"=="1" goto desativar_servicos
 if "%choice%"=="2" goto aplicar_general
 if "%choice%"=="3" goto power_optimizations
 if "%choice%"=="4" goto usb_optimizations
 if "%choice%"=="5" goto system_debloat
 if "%choice%"=="6" goto storage_optimizations
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
 if /I "%choice%"=="R" goto reiniciar
 
-echo Opcao invalida. Por favor, escolha de 0 a 7.
+echo Opcao invalida. Por favor, escolha de 0 a 6.
 pause
 goto menu
-
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 
 :fechar_programa
