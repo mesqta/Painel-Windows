@@ -47,7 +47,6 @@ goto menu
 :desativar_servicos
 cls
 echo Desabilitando o servico SysMain (SuperFetch) e outros servicos...
-pause
 
 :: Desabilitar o servico SysMain
 sc config SysMain start= disabled
