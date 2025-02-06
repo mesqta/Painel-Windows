@@ -2,7 +2,6 @@
 :menu
 cls
 echo Escolha uma opcao:
-echo [0] Fechar Programa
 echo [1] Desativar Servicos
 echo [2] Limpar Arquivos
 echo [3] Apply General Regsitry and windows Optimizations
@@ -10,11 +9,12 @@ echo [4] Power Optimizations
 echo [5] USB Optimizations
 echo [6] System Debloat
 echo [7] Storage Optimizations
-echo [8] Reiniciar
+echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+echo [S] Fechar Programa
+echo [R] Reiniciar
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
 
-if "%choice%"=="0" goto fechar_programa
 if "%choice%"=="1" goto desativar_servicos
 if "%choice%"=="2" goto limpar_arquivos
 if "%choice%"=="3" goto aplicar_general
@@ -22,9 +22,10 @@ if "%choice%"=="4" goto power_optimizations
 if "%choice%"=="5" goto usb_optimizations
 if "%choice%"=="6" goto system_debloat
 if "%choice%"=="7" goto storage_optimizations
-if "%choice%"=="8" goto reiniciar
+if /I "%choice%"=="S" goto fechar_programa
+if /I "%choice%"=="R" goto reiniciar
 
-echo Opcao invalida. Por favor, escolha de 0 a 8.
+echo Opcao invalida. Por favor, escolha de 0 a 7.
 pause
 goto menu
 
@@ -537,7 +538,6 @@ bcdedit /set MSI Default
 bcdedit /set usephysicaldestination No
 bcdedit /set usefirmwarepcisettings No
 
-
 echo %w% - Setting Latency Tolerance%b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" /v "MonitorLatencyTolerance" /t REG_DWORD /d "1" /f 
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" /v "MonitorRefreshLatencyTolerance" /t REG_DWORD /d "1" /f 
@@ -727,9 +727,9 @@ Reg.exe add "HKCU\SOFTWARE\Microsoft\DirectX\UserGpuPreferences" /v "DirectXUser
 echo %w% - Delete Overlay %b%
 reg delete "HKLM\SOFTWARE\Microsoft\Windows\Dwm" /v "OverlayTestMode" /f
 
-echo %w% - Enabling Game Mode %b%
-Reg.exe add "HKCU\SOFTWARE\Microsoft\GameBar" /v "AllowAutoGameMode" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\SOFTWARE\Microsoft\GameBar" /v "AutoGameModeEnabled" /t REG_DWORD /d "1" /f
+echo %w% - Disabling Game Mode %b%
+Reg.exe add "HKCU\SOFTWARE\Microsoft\GameBar" /v "AllowAutoGameMode" /t REG_DWORD /d "0" /f
+Reg.exe add "HKCU\SOFTWARE\Microsoft\GameBar" /v "AutoGameModeEnabled" /t REG_DWORD /d "0" /f
 pause
 goto menu
 
