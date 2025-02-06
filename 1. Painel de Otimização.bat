@@ -30,7 +30,6 @@ echo Opcao invalida. Por favor, escolha de 0 a 6.
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
-
 :fechar_programa
 cls
 echo Fechando o programa...
