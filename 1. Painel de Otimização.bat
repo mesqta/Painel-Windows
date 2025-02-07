@@ -2101,6 +2101,14 @@ REM Desativa aplicativos em segundo plano para o usuário atual
 reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f
 
 echo Aplicativos em segundo plano desativados com sucesso!
+
+echo Configurando a política de grupo para desativar aplicativos em segundo plano...
+
+REM Habilita a política para desativar aplicativos em segundo plano
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" /v LetAppsRunInBackground /t REG_DWORD /d 2 /f
+
+echo Política aplicada com sucesso!
+echo Reinicie o computador para que as alterações entrem em vigor.
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
