@@ -8,6 +8,7 @@ echo [3] Power Optimizations
 echo [4] USB Optimizations
 echo [5] System Debloat
 echo [6] Storage Optimizations
+echo [7] Disable background apps(w11)
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [A] Aplicar Todas as otimizacoes
@@ -21,6 +22,7 @@ if "%choice%"=="3" goto power_optimizations
 if "%choice%"=="4" goto usb_optimizations
 if "%choice%"=="5" goto system_debloat
 if "%choice%"=="6" goto storage_optimizations
+if "%choice%"=="7" goto disable_background_apps
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="A" goto apply_all_optimizations
@@ -2075,6 +2077,18 @@ Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "IoS
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "IoQueueDepth" /t REG_DWORD /d "64" /f
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "HostMemoryBufferBytes" /t REG_DWORD /d "1500" /f
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "ArbitrationBurst" /t REG_DWORD /d "256" /f
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:disable_background_apps
+cls
+echo Revertendo a política de grupo para permitir aplicativos em segundo plano...
+
+REM Remove a política personalizada
+reg delete "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" /v LetAppsRunInBackground /f
+
+echo Política revertida com sucesso!
+echo Reinicie o computador para que as alterações entrem em vigor.
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
