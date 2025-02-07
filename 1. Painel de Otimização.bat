@@ -2104,7 +2104,7 @@ echo Aplicativos em segundo plano desativados com sucesso!
 
 echo Configurando a política de grupo para desativar aplicativos em segundo plano...
 
-REM Habilita a política para desativar aplicativos em segundo plano
+REM Habilita a política "Permitir que os aplicativos do Windows sejam executados em segundo plano" e força a negação
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" /v LetAppsRunInBackground /t REG_DWORD /d 2 /f
 
 echo Política aplicada com sucesso!
