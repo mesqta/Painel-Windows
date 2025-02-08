@@ -26,7 +26,7 @@ if "%choice%"=="7" goto uninstall_useless_apps
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
 
-echo Opcao invalida. Por favor, escolha de 0 a 6.
+echo Opcao invalida. Por favor, escolha de 0 a 7.
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
