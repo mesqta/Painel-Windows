@@ -9,6 +9,7 @@ echo [4] USB Optimizations
 echo [5] System Debloat
 echo [6] Storage Optimizations
 echo [7] Uninstall Useless Apps
+echo [8] Disable GameDvr
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
@@ -22,6 +23,7 @@ if "%choice%"=="4" goto usb_optimizations
 if "%choice%"=="5" goto system_debloat
 if "%choice%"=="6" goto storage_optimizations
 if "%choice%"=="7" goto uninstall_useless_apps
+if "%choice%"=="8" goto disable_game_dvr
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -1418,6 +1420,25 @@ echo Deleting Microsoft Edge Shortcuts.
 del "C:\Users\Public\Desktop\Microsoft Edge.lnk" >nul 2>&1
 del "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Edge.lnk" >nul 2>&1
 del "%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Microsoft Edge.lnk" >nul 2>&1
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:disable_game_dvr
+cls
+echo Desativando a captura de jogos (Game DVR)...
+
+:: Define o caminho da chave no Registro
+set regPath=HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\GameDVR
+
+:: Define o valor AppCaptureEnabled como 0 (desativado)
+reg add "%regPath%" /v AppCaptureEnabled /t REG_DWORD /d 0 /f
+
+:: Verifica se o comando foi executado com sucesso
+if %errorlevel% equ 0 (
+    echo Captura de jogos desativada com sucesso!
+) else (
+    echo Ocorreu um erro ao tentar desativar a captura de jogos.
+)
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
