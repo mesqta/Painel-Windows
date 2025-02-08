@@ -8,6 +8,7 @@ echo [3] Power Optimizations
 echo [4] USB Optimizations
 echo [5] System Debloat
 echo [6] Storage Optimizations
+echo [7] Uninstall Useless Apps
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
@@ -20,6 +21,7 @@ if "%choice%"=="3" goto power_optimizations
 if "%choice%"=="4" goto usb_optimizations
 if "%choice%"=="5" goto system_debloat
 if "%choice%"=="6" goto storage_optimizations
+if "%choice%"=="7" goto uninstall_useless_apps
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -1118,6 +1120,300 @@ Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "IoS
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "IoQueueDepth" /t REG_DWORD /d "64" /f
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "HostMemoryBufferBytes" /t REG_DWORD /d "1500" /f
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "ArbitrationBurst" /t REG_DWORD /d "256" /f
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:uninstall_useless_apps
+cls
+chcp 437 >nul
+CLS
+echo.
+echo.
+echo [                             0%                            ]
+echo.
+echo %w%- Uninstalling BingWeather (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.BingWeather* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [==                           3.5%                          ]
+echo.
+echo %w%- Uninstalling GetHelp  (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.GetHelp* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [====                         7.0%                          ]
+echo.
+echo %w%- Uninstalling Getstarted  (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.Getstarted* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=====                        10.5%                         ]
+echo.
+echo %w%- Uninstalling Messaging  (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.Messaging* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [======                       14.5%                         ]
+echo.
+echo %w%- Uninstalling Messaging  (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.Microsoft3DViewer* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [========                     18.0%                         ]
+echo.
+echo %w%- Uninstalling MicrosoftSolitaireCollection (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.MicrosoftSolitaireCollection* | Remove-AppxPackage}
+CLS 
+
+echo.
+echo.
+echo [==========                   21.5%                         ]
+echo.
+echo %w%- Uninstalling MicrosoftStickyNotes (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.MicrosoftStickyNotes* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [============                 24.5%                         ]
+echo.
+echo %w%- Uninstalling MixedReality.Portal (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.MixedReality.Portal* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [==============               27.0%                         ]
+echo.
+echo %w%- Uninstalling OneConnect (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.OneConnect* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [===============              28.5%                         ]
+echo.
+echo %w%- Uninstalling People (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.People* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [==================           30.5%                         ]
+echo.
+echo %w%- Uninstalling Print3D (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.Print3D* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [===================           32.0%                        ]
+echo.
+echo %w%- Uninstalling SkypeApp (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.SkypeApp* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [====================         34.0%                         ]
+echo.
+echo %w%- Uninstalling WindowsAlarms (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsAlarms* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=====================        35.2%                         ]
+echo.
+echo %w%- Uninstalling WindowsCamera (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsCamera* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [======================       37.5%                         ]
+echo.
+echo %w%- Uninstalling windowscommunicationsapps (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *microsoft.windowscommunicationsapps* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=======================      38.8%                         ]
+echo.
+echo %w%- Uninstalling WindowsMaps (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsMaps* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [========================     40.0%                         ]
+echo.
+echo %w%- Uninstalling WindowsFeedbackHub (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsFeedbackHub* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=========================    42.2%                         ]
+echo.
+echo %w%- Uninstalling WindowsSoundRecorder (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsSoundRecorder* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=========================    44.5%                         ]
+echo.
+echo %w%- Uninstalling YourPhone (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.YourPhone* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [===========================  47.0%                         ]
+echo.
+echo %w%- Uninstalling ZuneMusic (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.ZuneMusic* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [===========================  49.0%                         ]
+echo.
+echo %w%- Uninstalling HEIFImageExtension (Removing Preinstalled Apps) %b%
+
+PowerShell -command "& {Get-AppxPackage *Microsoft.HEIFImageExtension* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=============================51.0%                         ]
+echo.
+echo %w%- Uninstalling WebMediaExtensions (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WebMediaExtensions* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=============================53.5%==                       ]
+echo.
+echo %w%- Uninstalling WebpImageExtension (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WebpImageExtension* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=============================56.7%====                     ]
+echo.
+echo %w%- Uninstalling 3dBuilder (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.3dBuilder* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=============================59.5%======                   ]
+echo.
+echo %w%- Uninstalling bing (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *bing* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================62.0%========                 ]
+echo.
+echo %w%- Uninstalling bingfinance (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *bingfinance* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================65.5%==========               ]
+echo.
+echo %w%- Uninstalling bingsports (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *bingsports* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================69.0%============             ]
+echo.
+echo %w%- Uninstalling CommsPhone (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *CommsPhone* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================75.0 %=============           ]
+echo.
+echo %w%- Uninstalling Drawboard PDF (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *Drawboard PDF* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================79.5%%===============         ]
+echo.
+echo %w%- Uninstalling Sway (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *Sway* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================85.0%%===================     ]
+echo.
+echo %w%- Uninstalling WindowsAlarms (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *WindowsAlarms* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================90.5%%=====================   ]
+echo.
+echo %w%- Uninstalling WindowsPhone (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *WindowsPhone* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================93.5%%=====================   ]
+echo.
+echo %w%- Uninstalling WindowsPhone (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *WindowsPhone* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================100.0%%=======================]
+echo %w%- Finished! %b%
+chcp 65001 >nul
+pause
+
+
+echo %w% - Disabling Microsoft edging  %b%
+taskkill /f /im msedge.exe >nul 2>&1
+taskkill /f /im msedge.exe /fi "IMAGENAME eq msedge.exe" >nul 2>&1
+taskkill /f /im msedge.exe /fi "IMAGENAME eq msedge.exe" >nul 2>&1
+echo Deleting Edge Directories.
+rd /s /q "C:\Program Files (x86)\Microsoft\Edge" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\EdgeCore" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\EdgeUpdate" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\EdgeWebView" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\Temp" >nul 2>&1
+echo Deleting Microsoft Edge Shortcuts.
+del "C:\Users\Public\Desktop\Microsoft Edge.lnk" >nul 2>&1
+del "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Edge.lnk" >nul 2>&1
+del "%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Microsoft Edge.lnk" >nul 2>&1
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
