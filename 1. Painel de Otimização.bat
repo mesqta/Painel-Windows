@@ -10,6 +10,7 @@ echo [5] System Debloat
 echo [6] Storage Optimizations
 echo [7] Uninstall Useless Apps
 echo [8] Disable GameDvr
+echo [9] Set memoryusage
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
@@ -24,6 +25,7 @@ if "%choice%"=="5" goto system_debloat
 if "%choice%"=="6" goto storage_optimizations
 if "%choice%"=="7" goto uninstall_useless_apps
 if "%choice%"=="8" goto disable_game_dvr
+if "%choice%"=="9" goto set_memory_usage
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -1438,6 +1440,18 @@ if %errorlevel% equ 0 (
     echo Captura de jogos desativada com sucesso!
 ) else (
     echo Ocorreu um erro ao tentar desativar a captura de jogos.
+)
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:set_memory_usage
+cls
+echo Configurando o uso de memória do sistema de arquivos...
+fsutil behavior set memoryusage 2
+if %errorlevel% equ 0 (
+    echo Configuração aplicada com sucesso!
+) else (
+    echo Ocorreu um erro ao aplicar a configuração.
 )
 pause
 goto menu
