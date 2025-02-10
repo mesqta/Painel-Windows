@@ -11,6 +11,8 @@ echo [6] Storage Optimizations
 echo [7] Uninstall Useless Apps
 echo [8] Disable GameDvr
 echo [9] Set memoryusage
+echo [10] Activate processor performance boost mode
+echo [11] Reduce processes
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
@@ -26,6 +28,8 @@ if "%choice%"=="6" goto storage_optimizations
 if "%choice%"=="7" goto uninstall_useless_apps
 if "%choice%"=="8" goto disable_game_dvr
 if "%choice%"=="9" goto set_memory_usage
+if "%choice%"=="10" goto activate_processor_performance_boost_mode
+if "%choice%"=="11" goto reduce_processes
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -506,7 +510,6 @@ Reg.exe add "HKCU\Control Panel\Desktop" /v "HungAppTimeout" /t REG_SZ /d "1000"
 Reg.exe add "HKCU\Control Panel\Desktop" /v "WaitToKillAppTimeout" /t REG_SZ /d "1000" /f
 Reg.exe add "HKCU\Control Panel\Desktop" /v "LowLevelHooksTimeout" /t REG_SZ /d "1000" /f
 Reg.exe add "HKCU\Control Panel\Desktop" /v "MenuShowDelay" /t REG_SZ /d "0" /f
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control" /v "WaitToKillServiceTimeout" /t REG_SZ /d "2000" /f
 
 echo %w% - Setting IO Time Stamp%b%
 Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Reliability" /v "TimeStampInterval" /t REG_DWORD /d "1" /f 
@@ -521,7 +524,6 @@ bcdedit /set configaccesspolicy Default
 bcdedit /set MSI Default
 bcdedit /set usephysicaldestination No
 bcdedit /set usefirmwarepcisettings No
-
 
 echo %w% - Setting Latency Tolerance%b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" /v "MonitorLatencyTolerance" /t REG_DWORD /d "1" /f 
@@ -1452,6 +1454,65 @@ if %errorlevel% equ 0 (
     echo Configuração aplicada com sucesso!
 ) else (
     echo Ocorreu um erro ao aplicar a configuração.
+)
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:activate_processor_performance_boost_mode
+cls
+REM
+set "regKey=HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\be337238-0d82-4146-a960-4f3749d470c7"
+
+REM
+set "valueName=Attributes"
+set "valueData=2"
+
+REM
+reg add "%regKey%" /v "%valueName%" /t REG_DWORD /d %valueData% /f
+
+REM
+if %errorlevel% equ 0 (
+    echo Valor de "%valueName%" alterado para %valueData% com sucesso!
+) else (
+    echo Ocorreu um erro ao tentar modificar o valor.
+)
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:reduce_processes
+cls
+:: Verifica se o script está rodando como administrador
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Por favor, execute este script como Administrador.
+    pause
+    exit /b
+)
+
+:: Define a chave do registro que será modificada
+set "regKey=HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control"
+
+:: Define os valores e dados que serão atribuídos
+set "valueName1=SvcHostSplitThresholdInKB"
+set "valueData1=67108864"  :: Valor decimal de 0x04000000 (64MB)
+
+set "valueName2=WaitToKillServiceTimeout"
+set "valueData2=2000"  :: Tempo de espera em milissegundos
+
+:: Modifica o valor de SvcHostSplitThresholdInKB no registro (em decimal)
+reg add "%regKey%" /v "%valueName1%" /t REG_DWORD /d %valueData1% /f
+if %errorlevel% equ 0 (
+    echo Valor de "%valueName1%" alterado para %valueData1% com sucesso!
+) else (
+    echo ERRO ao modificar "%valueName1%". Verifique permissões!
+)
+
+:: Modifica o valor de WaitToKillServiceTimeout no registro
+reg add "%regKey%" /v "%valueName2%" /t REG_SZ /d "%valueData2%" /f
+if %errorlevel% equ 0 (
+    echo Valor de "%valueName2%" alterado para %valueData2% com sucesso!
+) else (
+    echo ERRO ao modificar "%valueName2%". Verifique permissões!
 )
 pause
 goto menu
