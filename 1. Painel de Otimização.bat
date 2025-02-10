@@ -127,6 +127,10 @@ net stop bthserv
 sc config InventorySvc start= disabled
 net stop InventorySvc
 
+:: Lista de processos para encerrar
+call :killprocess msedge.exe
+call :killprocess onedrive.exe
+
 :: Desabilitar recursos de economia de energia
 echo %w% - Disabling Power Saving Features %b%
 powercfg /h off
@@ -381,6 +385,11 @@ goto menu
 :limpar_arquivos
 cls
 echo Limpando arquivos de log, arquivos temp, caches e lixo do computador...
+
+:: Limpa a memória RAM
+echo Liberando memória RAM...
+echo.> %temp%\emptyfile
+del %temp%\emptyfile
 
 :: Limpeza de arquivos de log e temporarios do sistema
 del *.log /a /s /q /f
@@ -700,6 +709,9 @@ schtasks /end /tn "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagn
 schtasks /change /tn "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver" /Disable
 schtasks /end /tn "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem"
 schtasks /change /tn "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem" /Disable
+
+echo Otimizando memória RAM...
+wmic OS get FreePhysicalMemory /Value
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
