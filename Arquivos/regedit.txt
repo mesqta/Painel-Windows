@@ -1,6 +1,0 @@
-Computador\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control
-
-SvcHostSplitThresholdInKB - 04000000
-
-
-WaitToKillServiceTimeout - 2000
