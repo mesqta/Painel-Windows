@@ -30,7 +30,7 @@ if "%choice%"=="7" goto uninstall_useless_apps
 if "%choice%"=="8" goto disable_game_dvr
 if "%choice%"=="9" goto set_memory_usage
 if "%choice%"=="10" goto activate_processor_performance_boost_mode
-if "%choice%"=="11" goto 
+if "%choice%"=="11" goto reduce_processes
 if "%choice%"=="12" goto disable_settings
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
