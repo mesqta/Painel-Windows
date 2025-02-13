@@ -14,6 +14,7 @@ echo [9] Set memoryusage
 echo [10] Activate processor performance boost mode
 echo [11] Reduce processes
 echo [12] Disable Settings
+echo [13] Mouse Settings
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
@@ -32,6 +33,7 @@ if "%choice%"=="9" goto set_memory_usage
 if "%choice%"=="10" goto activate_processor_performance_boost_mode
 if "%choice%"=="11" goto reduce_processes
 if "%choice%"=="12" goto disable_settings
+if "%choice%"=="13" goto mouse_settings
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -1533,8 +1535,13 @@ goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :disable_settings
 cls
+@echo off
 echo Desativando funções inúteis no Windows 11...
 echo.
+
+:: ==========================================
+:: Configurações gerais do sistema
+:: ==========================================
 
 :: Desativar transparência e efeitos visuais
 powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'EnableTransparency' -Value 0"
@@ -1608,8 +1615,75 @@ powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\Cu
 powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AllowAutoGameMode' -Value 0"
 echo Notificações de jogos e Xbox desativadas.
 
+:: ==========================================
+:: Sistema (adicional)
+:: ==========================================
+
+:: Desativar compartilhamento por proximidade
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CDP' -Name 'NearShareChannelEnabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CDP' -Name 'NearShareChannelUserPolicy' -Value 0"
+echo Compartilhamento por proximidade desativado.
+
+:: Desativar projeção para este computador
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Connect' -Name 'AllowProjectionToPC' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Connect' -Name 'RequirePinForPairing' -Value 1"
+echo Projeção para este computador desativada.
+
+:: Desativar recursos adicionais (opcional)
+powershell -command "Disable-WindowsOptionalFeature -Online -FeatureName 'WindowsMediaPlayer' -NoRestart"
+powershell -command "Disable-WindowsOptionalFeature -Online -FeatureName 'Printing-PrintToPDFServices-Features' -NoRestart"
+echo Recursos adicionais desativados.
+
+:: ==========================================
+:: Bluetooth e dispositivos
+:: ==========================================
+
+:: Desativar Bluetooth
+powershell -command "Disable-NetAdapterBinding -Name '*' -ComponentID 'ms_bthpan'"
+powershell -command "Disable-NetAdapterBinding -Name '*' -ComponentID 'ms_bthport'"
+echo Bluetooth desativado.
+
+:: Desativar descoberta de dispositivos
+powershell -command "Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\FDResPub' -Name 'Start' -Value 4"
+powershell -command "Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\SSDPSRV' -Name 'Start' -Value 4"
+echo Descoberta de dispositivos desativada.
+
+:: ==========================================
+:: Acessibilidade
+:: ==========================================
+
+:: Desativar Lupa
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\ScreenMagnifier' -Name 'MagnifierUI' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\ScreenMagnifier' -Name 'Magnification' -Value 0"
+echo Lupa desativada.
+
+:: Desativar filtros de cor
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\ColorFiltering' -Name 'Active' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\ColorFiltering' -Name 'FilterType' -Value 0"
+echo Filtros de cor desativados.
+
+:: Desativar legendas
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Accessibility' -Name 'ClosedCaptioning' -Value 0"
+echo Legendas desativadas.
+
 echo.
 echo Todas as funções inúteis foram desativadas!
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:mouse_settings
+cls
+
+:: Desativar a aceleracao do mouse (melhor para jogos e precisao)
+reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d "0" /f
+echo Aceleracao do mouse desativada.
+
+:: Ajustar o tempo de atraso do clique duplo (em milissegundos)
+set /p doubleClickSpeed="Digite o tempo de atraso para clique duplo (em ms, padrao 500): "
+if "%doubleClickSpeed%"=="" set doubleClickSpeed=500
+reg add "HKCU\Control Panel\Mouse" /v DoubleClickSpeed /t REG_SZ /d "%doubleClickSpeed%" /f
+echo Tempo de atraso do clique duplo ajustado para %doubleClickSpeed% ms.
+pause
+goto menu
