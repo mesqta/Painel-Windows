@@ -440,6 +440,20 @@ net stop UsoSvc
 rd /s /q C:\Windows\SoftwareDistribution
 md C:\Windows\SoftwareDistribution
 
+:: Limpeza da pasta Downloads
+echo Limpando a pasta Downloads...
+del /s /f /q "%USERPROFILE%\Downloads\*.*"
+rd /s /q "%USERPROFILE%\Downloads"
+md "%USERPROFILE%\Downloads"
+echo Pasta Downloads limpa.
+
+:: Limpeza da pasta Imagens
+echo Limpando a pasta Imagens...
+del /s /f /q "%USERPROFILE%\Pictures\*.*"
+rd /s /q "%USERPROFILE%\Pictures"
+md "%USERPROFILE%\Pictures"
+echo Pasta Imagens limpa.
+
 :: Limpeza de pastas temporárias
 RD /S /Q %temp%
 MKDIR %temp%
