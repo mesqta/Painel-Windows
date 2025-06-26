@@ -15,6 +15,10 @@ echo [10] Activate processor performance boost mode
 echo [11] Reduce processes
 echo [12] Disable Settings w11
 echo [13] Mouse Settings
+echo [14] Otimizacoes Extras
+echo [15] Otimizar para Discord + Jogos
+echo [16] Remover Travamentos e Lentidoes
+echo [17] Resposta Instantanea ao Abrir Apps e Janelas
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
@@ -34,6 +38,10 @@ if "%choice%"=="10" goto activate_processor_performance_boost_mode
 if "%choice%"=="11" goto reduce_processes
 if "%choice%"=="12" goto disable_settings
 if "%choice%"=="13" goto mouse_settings
+if "%choice%"=="14" goto extra_optimizations
+if "%choice%"=="15" goto otimizar_discord_jogos
+if "%choice%"=="16" goto remover_travamentos
+if "%choice%"=="17" goto aumentar_resposta_apps
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -1789,3 +1797,249 @@ reg add "HKCU\Control Panel\Mouse" /v DoubleClickSpeed /t REG_SZ /d "%doubleClic
 echo Tempo de atraso do clique duplo ajustado para %doubleClickSpeed% ms.
 pause
 goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:extra_optimizations
+cls
+echo Aplicando otimizações extras do Windows 11 24H2...
+
+:: Desativar Widgets
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarDa /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Dsh" /v AllowNewsAndInterests /t REG_DWORD /d 0 /f
+echo Widgets desativados.
+
+:: Desativar Chat da barra de tarefas (Teams)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarMn /t REG_DWORD /d 0 /f
+echo Chat da barra de tarefas desativado.
+
+:: Desativar sugestões de pesquisa na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsDeviceSearchHistoryEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsCloudSearchEnabled /t REG_DWORD /d 0 /f
+echo Sugestões de pesquisa desativadas.
+
+:: Desativar sugestões de aplicativos na tela inicial
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338388Enabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338389Enabled /t REG_DWORD /d 0 /f
+echo Sugestões de aplicativos desativadas.
+
+:: Desativar Timeline (Linha do Tempo)
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableActivityFeed /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v PublishUserActivities /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v UploadUserActivities /t REG_DWORD /d 0 /f
+echo Timeline desativada.
+
+:: Desativar People na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" /v PeopleBand /t REG_DWORD /d 0 /f
+echo People na barra de tarefas desativado.
+
+:: Desativar Feedback Hub
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v DoNotShowFeedbackNotifications /t REG_DWORD /d 1 /f
+echo Feedback Hub desativado.
+
+:: Desativar Quick Assist
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\QuickAssist" /v EnableQuickAssist /t REG_DWORD /d 0 /f
+echo Quick Assist desativado.
+
+:: Desativar sugestões de configurações rápidas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FeatureUsage\ShowQuickActionRecommendations" /v Enabled /t REG_DWORD /d 0 /f
+echo Sugestões rápidas desativadas.
+
+:: Desativar anúncios na tela de bloqueio
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RotatingLockScreenOverlayEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RotatingLockScreenEnabled /t REG_DWORD /d 0 /f
+echo Anúncios na tela de bloqueio desativados.
+
+:: Desativar sugestões de dicas e truques
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SoftLandingEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v ScoobeSystemSettingEnabled /t REG_DWORD /d 0 /f
+echo Dicas e truques desativados.
+
+:: Desativar Meet Now (Skype) na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v HideSCAMeetNow /t REG_DWORD /d 1 /f
+echo Meet Now desativado.
+
+:: Desativar sugestões de configurações no menu Iniciar
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_Recommendations /t REG_DWORD /d 0 /f
+echo Recomendações do menu Iniciar desativadas.
+
+:: Desativar sugestões de arquivos recentes no menu Iniciar
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_TrackDocs /t REG_DWORD /d 0 /f
+echo Arquivos recentes do menu Iniciar desativados.
+
+:: Desativar sugestões de contatos na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" /v PeopleBand /t REG_DWORD /d 0 /f
+echo Contatos na barra de tarefas desativados.
+
+:: Desativar sugestões de aplicativos na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowTaskViewButton /t REG_DWORD /d 0 /f
+echo Botão de visão de tarefas desativado.
+
+:: Desativar dicas de aplicativos na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowTaskbarCloudContent /t REG_DWORD /d 0 /f
+echo Dicas de aplicativos na barra de tarefas desativadas.
+
+:: Desativar sugestões de notificações
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\PushNotifications" /v ToastEnabled /t REG_DWORD /d 0 /f
+echo Notificações toast desativadas.
+
+:: Desativar sugestões de privacidade
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Privacy" /v TailoredExperiencesWithDiagnosticDataEnabled /t REG_DWORD /d 0 /f
+echo Sugestões de privacidade desativadas.
+
+:: Desativar sugestões de sincronização de dispositivos
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SettingSync" /v SyncPolicy /t REG_DWORD /d 5 /f
+echo Sugestões de sincronização desativadas.
+
+:: Desativar sugestões de backup na nuvem
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\OneDrive" /v DisablePersonalSync /t REG_DWORD /d 1 /f
+echo Sugestões de backup na nuvem desativadas.
+
+:: Desativar sugestões de atualização do Windows
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" /v SetDisableUXWUAccess /t REG_DWORD /d 1 /f
+echo Sugestões de atualização do Windows desativadas.
+
+:: Desativar sugestões de login com conta Microsoft
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v NoConnectedUser /t REG_DWORD /d 3 /f
+echo Sugestões de login com conta Microsoft desativadas.
+
+:: Desativar sugestões de backup do histórico de arquivos
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\FileHistory" /v Disabled /t REG_DWORD /d 1 /f
+echo Sugestões de backup do histórico de arquivos desativadas.
+
+:: Desativar sugestões de backup do OneDrive
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\OneDrive" /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f
+echo Sugestões de backup do OneDrive desativadas.
+
+:: Desativar sugestões de backup do Windows Hello
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Biometrics" /v Enabled /t REG_DWORD /d 0 /f
+echo Sugestões do Windows Hello desativadas.
+
+:: Desativar sugestões de backup do BitLocker
+reg add "HKLM\SOFTWARE\Policies\Microsoft\FVE" /v RDVConfigureBDE /t REG_DWORD /d 0 /f
+echo Sugestões do BitLocker desativadas.
+
+:: Desativar sugestões de backup do Windows Defender
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
+echo Sugestões do Windows Defender desativadas.
+
+echo Otimizações extras aplicadas!
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:otimizar_discord_jogos
+cls
+echo Otimizando para reduzir gargalos, travamentos e input lag em jogos + Discord...
+
+:: Plano de energia para desempenho máximo
+powercfg /setactive SCHEME_MIN
+
+:: Prioridade máxima para apps em primeiro plano
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 26 /f
+
+:: Reduzir input lag de áudio (MMCSS)
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v Scheduling Category /t REG_SZ /d "High" /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v SFIO Priority /t REG_SZ /d "High" /f
+
+:: Reduzir input lag de jogos (MMCSS)
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v Scheduling Category /t REG_SZ /d "High" /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v SFIO Priority /t REG_SZ /d "High" /f
+
+:: Desabilitar apps em segundo plano
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f
+
+:: Fechar apps que consomem recursos (OneDrive, Edge, Widgets)
+taskkill /f /im OneDrive.exe >nul 2>&1
+taskkill /f /im msedge.exe >nul 2>&1
+taskkill /f /im Widgets.exe >nul 2>&1
+
+:: Desabilitar Game Bar e Game DVR (reduz input lag)
+reg add "HKCU\SOFTWARE\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 0 /f
+reg add "HKCU\SOFTWARE\Microsoft\GameBar" /v AutoGameModeEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AppCaptureEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AudioCaptureEnabled /t REG_DWORD /d 0 /f
+
+:: Desabilitar aceleração de mouse (melhor para jogos)
+reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d "0" /f
+
+echo Otimização aplicada! Discord e o jogo agora têm prioridade máxima e menos input lag.
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:remover_travamentos
+cls
+echo Aplicando otimizacoes para remover travamentos e lentidoes...
+
+:: Plano de energia para desempenho máximo
+powercfg /setactive SCHEME_MIN
+
+:: Desabilitar inicialização rápida
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v HiberbootEnabled /t REG_DWORD /d 0 /f
+
+:: Desabilitar apps em segundo plano
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f
+
+:: Limpar arquivos temporários e cache
+del /s /f /q %temp%\*.*
+del /s /f /q C:\Windows\Temp\*.*
+del /s /f /q C:\Windows\Prefetch\*.*
+del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
+
+:: Reduzir tempo de espera para encerrar processos travados
+reg add "HKCU\Control Panel\Desktop" /v AutoEndTasks /t REG_SZ /d "1" /f
+reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "1000" /f
+reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "1000" /f
+reg add "HKCU\Control Panel\Desktop" /v LowLevelHooksTimeout /t REG_SZ /d "1000" /f
+
+:: Otimizar uso de memória do sistema de arquivos
+fsutil behavior set memoryusage 2 >nul 2>&1
+
+:: Desabilitar serviços que causam lentidão (SysMain/Superfetch, WSearch)
+sc config SysMain start= disabled
+net stop SysMain
+sc config WSearch start= disabled
+net stop WSearch
+
+:: Desabilitar indexação de arquivos
+reg add "HKLM\SOFTWARE\Microsoft\Windows Search" /v SetupCompletedSuccessfully /t REG_DWORD /d 0 /f
+
+:: Desabilitar efeitos visuais para melhor desempenho
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
+
+:: Otimizar prioridade de processos em primeiro plano
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 26 /f
+
+echo Otimizacoes aplicadas! Reinicie o computador para melhores resultados.
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:aumentar_resposta_apps
+cls
+echo Otimizando para resposta instantanea ao abrir apps e janelas...
+
+:: Reduzir delay do menu iniciar e janelas
+reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "0" /f
+
+:: Reduzir delay de dicas de ferramentas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowInfoTip /t REG_DWORD /d 0 /f
+
+:: Reduzir tempo de espera para encerrar processos travados
+reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "100" /f
+reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "100" /f
+reg add "HKCU\Control Panel\Desktop" /v LowLevelHooksTimeout /t REG_SZ /d "100" /f
+
+:: Otimizar prioridade de processos em primeiro plano
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f
+
+:: Desabilitar animações de janelas para resposta mais rápida
+reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d "0" /f
+
+:: Desabilitar efeitos visuais para desempenho máximo
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
+
+echo Otimizacao de resposta aplicada! Reinicie o computador para melhores resultados.
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
