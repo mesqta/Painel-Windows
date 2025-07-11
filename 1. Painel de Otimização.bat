@@ -19,6 +19,7 @@ echo [14] Otimizacoes Extras
 echo [15] Otimizar para Discord + Jogos
 echo [16] Remover Travamentos e Lentidoes
 echo [17] Resposta Instantanea ao Abrir Apps e Janelas
+echo [18] Limpar Lixeira
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
