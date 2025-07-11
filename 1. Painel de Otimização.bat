@@ -42,6 +42,7 @@ if "%choice%"=="14" goto extra_optimizations
 if "%choice%"=="15" goto otimizar_discord_jogos
 if "%choice%"=="16" goto remover_travamentos
 if "%choice%"=="17" goto aumentar_resposta_apps
+if "%choice%"=="18" goto limpar_lixeira
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -55,6 +56,20 @@ cls
 echo Fechando o programa...
 pause
 exit
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:limpar_lixeira
+cls
+echo Limpando a Lixeira...
+
+:: Remove todos os arquivos da Lixeira permanentemente
+rd /s /q C:\$Recycle.bin
+
+:: Recria a pasta da Lixeira para evitar erros do sistema
+md C:\$Recycle.bin
+
+echo Lixeira limpa com sucesso! Nenhum arquivo residual permanece no sistema.
+pause
+goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :desativar_servicos
 cls
