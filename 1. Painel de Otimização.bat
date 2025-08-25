@@ -15,11 +15,9 @@ echo [10] Activate processor performance boost mode
 echo [11] Reduce processes
 echo [12] Disable Settings w11
 echo [13] Mouse Settings
-echo [14] Otimizacoes Extras
-echo [15] Otimizar para Discord + Jogos
-echo [16] Remover Travamentos e Lentidoes
-echo [17] Resposta Instantanea ao Abrir Apps e Janelas
-echo [18] Limpar Lixeira
+echo [14] Limpar Lixeira
+echo [15] Otimizar abertura de programas (Win10)
+echo [16] Melhorar desempenho do Windows 10 (ajustes avançados)
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
@@ -40,7 +38,9 @@ if "%choice%"=="10" goto activate_processor_performance_boost_mode
 if "%choice%"=="11" goto reduce_processes
 if "%choice%"=="12" goto disable_settings
 if "%choice%"=="13" goto mouse_settings
-if "%choice%"=="18" goto limpar_lixeira
+if "%choice%"=="14" goto limpar_lixeira
+if "%choice%"=="15" goto abrir_mais_rapido_win10
+if "%choice%"=="16" goto melhorar_desempenho_win10
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -2021,6 +2021,118 @@ Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settin
 Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance" /v "Enabled" /t REG_DWORD /d "1" /f 
 Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.WiFiNetworkManager" /v "Enabled" /t REG_DWORD /d "1" /f
 echo Notificacoes Reativadas!
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:abrir_mais_rapido_win10
+cls
+echo Otimizando abertura de programas e arquivos no Windows 10...
+
+:: Reduzir o delay do Menu Iniciar e dos menus do sistema
+reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "0" /f
+
+:: Habilitar o modo de desempenho máximo para discos
+fsutil behavior set disabledeletenotify 0
+
+:: Aumentar prioridade de processos interativos
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f
+
+:: Otimizar o pré-carregamento do Menu Iniciar
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_TrackProgs /t REG_DWORD /d 0 /f
+
+echo Otimização aplicada! Programas e arquivos devem abrir mais rápido.
+
+echo Otimizando processos e desativando serviços/tarefas inúteis para Windows 10 Pro...
+
+:: Agrupa serviços para reduzir processos
+reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v SvcHostSplitThresholdInKB /t REG_DWORD /d 67108864 /f
+
+:: Reduz tempo de espera para encerrar serviços
+reg add "HKLM\SYSTEM\CurrentControlSet\Control" /v WaitToKillServiceTimeout /t REG_SZ /d "2000" /f
+
+:: Desabilita serviços desnecessários
+sc config DiagTrack start= disabled
+sc config WSearch start= disabled
+sc config MapsBroker start= disabled
+sc config Fax start= disabled
+sc config XblGameSave start= disabled
+sc config WbioSrvc start= disabled
+sc config RemoteRegistry start= disabled
+sc config Spooler start= disabled
+sc config PrintNotify start= disabled
+sc config PhoneSvc start= disabled
+sc config BthAvctpSvc start= disabled
+sc config BluetoothUserService start= disabled
+sc config WpnService start= disabled
+sc config RetailDemo start= disabled
+sc config WMPNetworkSvc start= disabled
+sc config HomeGroupListener start= disabled
+sc config HomeGroupProvider start= disabled
+sc config PcaSvc start= disabled
+sc config TrkWks start= disabled
+sc config Wecsvc start= disabled
+sc config WdiServiceHost start= disabled
+sc config WdiSystemHost start= disabled
+sc config Wcmsvc start= disabled
+sc config WlanSvc start= disabled
+sc config WwanSvc start= disabled
+
+:: Desabilita tarefas agendadas desnecessárias
+schtasks /Change /TN "\Microsoft\Windows\Maps\MapsUpdateTask" /Disable
+schtasks /Change /TN "\Microsoft\Windows\WindowsUpdate\Automatic App Update" /Disable
+schtasks /Change /TN "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /Disable
+schtasks /Change /TN "\Microsoft\Windows\Application Experience\ProgramDataUpdater" /Disable
+schtasks /Change /TN "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /Disable
+schtasks /Change /TN "\Microsoft\Windows\Autochk\Proxy" /Disable
+schtasks /Change /TN "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" /Disable
+schtasks /Change /TN "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver" /Disable
+schtasks /Change /TN "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem" /Disable
+schtasks /Change /TN "\Microsoft\Windows\Shell\FamilySafetyMonitor" /Disable
+schtasks /Change /TN "\Microsoft\Windows\Shell\FamilySafetyRefresh" /Disable
+schtasks /Change /TN "\Microsoft\Windows\Shell\FamilySafetyUpload" /Disable
+
+echo Otimização de processos e desativação de serviços/tarefas inúteis concluída!
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:melhorar_desempenho_win10
+cls
+echo Aplicando ajustes avançados para melhorar o desempenho do Windows 10...
+
+:: Desabilitar animações e efeitos visuais
+reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f
+
+:: Desabilitar dicas, sugestões e notificações desnecessárias
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338389Enabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-310093Enabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338388Enabled /t REG_DWORD /d 0 /f
+
+:: Desabilitar Cortana e Bing no Menu Iniciar
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v BingSearchEnabled /t REG_DWORD /d 0 /f
+
+:: Desabilitar sincronização de configurações
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Personalization" /v Enabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Accessibility" /v Enabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Language" /v Enabled /t REG_DWORD /d 0 /f
+
+:: Ajustar tempo de encerramento de aplicativos travados
+reg add "HKCU\Control Panel\Desktop" /v AutoEndTasks /t REG_SZ /d "1" /f
+reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "1000" /f
+reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "1000" /f
+
+:: Desabilitar serviços de impressão e mapas
+sc config MapsBroker start= disabled
+sc config PrintNotify start= disabled
+sc config Spooler start= disabled
+
+:: Limpar arquivos temporários e cache do sistema
+del /s /f /q C:\Windows\Temp\*.* >nul 2>&1
+del /s /f /q %temp%\*.* >nul 2>&1
+del /s /f /q C:\Windows\Prefetch\*.* >nul 2>&1
+
+echo Ajustes avançados aplicados! O desempenho do Windows 10 deve melhorar.
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
