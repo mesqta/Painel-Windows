@@ -3,26 +3,33 @@
 cls
 echo Escolha uma opcao:
 echo [1] Desativar Servicos
-echo [2] General System Optimizations
-echo [3] Power Optimizations
-echo [4] USB Optimizations
-echo [5] System Debloat
-echo [6] Storage Optimizations
-echo [7] Uninstall Useless Apps
-echo [8] Disable GameDvr
-echo [9] Set memoryusage
-echo [10] Activate processor performance boost mode
-echo [11] Reduce processes
-echo [12] Disable Settings w11
-echo [13] Mouse Settings
+echo [2] Otimizacao Geral do Sistema
+echo [3] Otimizacao de Energia
+echo [4] Otimizacao de USB
+echo [5] Debloat do Sistema
+echo [6] Otimizacao de Armazenamento
+echo [7] Desinstalar Apps Inuteis
+echo [8] Desativar Game DVR
+echo [9] Ajustar Uso de Memoria
+echo [10] Boost de Desempenho do Processador
+echo [11] Reduzir Processos
+echo [12] Desativar Configuracoes Inuteis
+echo [13] Ajustar Mouse
 echo [14] Limpar Lixeira
+echo :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 echo [15] Otimizar abertura de programas (Win10)
-echo [16] Melhorar desempenho do Windows 10 (ajustes avançados)
-echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+echo [16] Melhorar desempenho do Windows 10 (ajustes avancados)
+echo [17] Abrir arquivos e programas mais rapido (Avancado)
+echo [18] Aumentar velocidade de clique do mouse
+echo [19] Otimizacao Completa (Recomendada)
+echo [20] Otimizacao de SSD/NVMe
+echo [21] Otimizacao de Memoria RAM
+echo [22] Otimizacao de Rede
+echo [23] Otimizacao de GPU
+echo :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
 echo [E] Ativar Notificacoes
-echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if "%choice%"=="1" goto desativar_servicos
@@ -41,6 +48,13 @@ if "%choice%"=="13" goto mouse_settings
 if "%choice%"=="14" goto limpar_lixeira
 if "%choice%"=="15" goto abrir_mais_rapido_win10
 if "%choice%"=="16" goto melhorar_desempenho_win10
+if "%choice%"=="17" goto abrir_rapido_avancado
+if "%choice%"=="18" goto mouse_rapido
+if "%choice%"=="19" goto otimizacao_completa
+if "%choice%"=="20" goto otimizacao_ssd
+if "%choice%"=="21" goto otimizacao_ram
+if "%choice%"=="22" goto otimizacao_rede
+if "%choice%"=="23" goto otimizacao_gpu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -2133,6 +2147,219 @@ del /s /f /q %temp%\*.* >nul 2>&1
 del /s /f /q C:\Windows\Prefetch\*.* >nul 2>&1
 
 echo Ajustes avançados aplicados! O desempenho do Windows 10 deve melhorar.
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:otimizacao_ssd
+cls
+echo Otimizando SSD/NVMe...
+
+:: Ativa TRIM
+fsutil behavior set disabledeletenotify 0
+
+:: Ativa cache de escrita
+for /f "Delims=" %%k in ('Reg.exe Query HKLM\SYSTEM\CurrentControlSet\Enum /f "{4d36e967-e325-11ce-bfc1-08002be10318}" /d /s^|Find "HKEY"') do (
+Reg.exe add "%%k\Device Parameters\Disk" /v UserWriteCacheSetting /t REG_DWORD /d 1 /f
+Reg.exe add "%%k\Device Parameters\Disk" /v CacheIsPowerProtected /t REG_DWORD /d 1 /f
+)
+
+:: Desabilita desfragmentação automática para SSD
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OptimalLayout" /v "EnableAutoDefrag" /t REG_DWORD /d 0 /f
+
+echo SSD/NVMe otimizado!
+pause
+goto menu
+
+:otimizacao_ram
+cls
+echo Otimizando uso de memoria RAM...
+
+:: Ajusta uso de memória do sistema de arquivos
+fsutil behavior set memoryusage 2
+
+:: Ajusta paginação para desempenho
+wmic computersystem where name="%computername%" set AutomaticManagedPagefile=True
+
+:: Limpa arquivos temporários
+del /s /f /q %temp%\*.* >nul 2>&1
+
+echo Memoria RAM otimizada!
+pause
+goto menu
+
+:otimizacao_rede
+cls
+echo Otimizando rede...
+
+:: TCP/IP otimizado
+netsh int tcp set global autotuninglevel=normal
+netsh int tcp set global rss=enabled
+netsh int tcp set global chimney=enabled
+
+:: Desabilita serviços de descoberta de rede
+sc config FDResPub start= disabled
+sc config SSDPSRV start= disabled
+
+echo Rede otimizada!
+pause
+goto menu
+
+:otimizacao_gpu
+cls
+echo Otimizando GPU...
+
+:: Prioridade máxima para jogos
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "GPU Priority" /t REG_DWORD /d 8 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Priority" /t REG_DWORD /d 2 /f
+
+:: Ativa modo de desempenho máximo para GPU NVIDIA
+if exist "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" (
+    "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -pm 1
+    "C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -acp 0
+)
+
+echo GPU otimizada!
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:otimizacao_completa
+cls
+echo Otimizando Windows para desempenho maximo...
+
+:: Desabilita telemetria e coleta de dados
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v PublishUserActivities /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v UploadUserActivities /t REG_DWORD /d 0 /f
+
+:: Desabilita Cortana e Bing no Menu Iniciar
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v AllowCortana /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v BingSearchEnabled /t REG_DWORD /d 0 /f
+
+:: Desabilita animações e transparência
+reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v EnableTransparency /t REG_DWORD /d 0 /f
+
+:: Reduz delay de menus
+reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "0" /f
+
+:: Ajusta prioridade de processos
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f
+
+:: Desabilita serviços desnecessários
+for %%s in (
+    DiagTrack WSearch MapsBroker Fax XblGameSave WbioSrvc RemoteRegistry Spooler PrintNotify PhoneSvc BthAvctpSvc BluetoothUserService WpnService RetailDemo WMPNetworkSvc HomeGroupListener HomeGroupProvider PcaSvc TrkWks Wecsvc WdiServiceHost WdiSystemHost Wcmsvc WlanSvc WwanSvc
+) do (
+    sc config %%s start= disabled
+    net stop %%s >nul 2>&1
+)
+
+:: Desabilita tarefas agendadas desnecessárias
+for %%t in (
+    "\Microsoft\Windows\Maps\MapsUpdateTask"
+    "\Microsoft\Windows\WindowsUpdate\Automatic App Update"
+    "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator"
+    "\Microsoft\Windows\Application Experience\ProgramDataUpdater"
+    "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser"
+    "\Microsoft\Windows\Autochk\Proxy"
+    "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector"
+    "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver"
+    "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem"
+    "\Microsoft\Windows\Shell\FamilySafetyMonitor"
+    "\Microsoft\Windows\Shell\FamilySafetyRefresh"
+    "\Microsoft\Windows\Shell\FamilySafetyUpload"
+) do (
+    schtasks /Change /TN %%t /Disable >nul 2>&1
+)
+
+:: Otimiza uso de memória
+fsutil behavior set memoryusage 2
+
+:: Otimiza disco (TRIM SSD)
+fsutil behavior set disabledeletenotify 0
+
+:: Limpa arquivos temporários e cache
+del /s /f /q C:\Windows\Temp\*.* >nul 2>&1
+del /s /f /q %temp%\*.* >nul 2>&1
+del /s /f /q C:\Windows\Prefetch\*.* >nul 2>&1
+
+:: Otimiza plano de energia para desempenho máximo
+powercfg /setactive SCHEME_MIN
+powercfg /setacvalueindex SCHEME_MIN SUB_PROCESSOR PROCTHROTTLEMAX 100
+powercfg /setacvalueindex SCHEME_MIN SUB_PROCESSOR PROCTHROTTLEMIN 100
+powercfg /setacvalueindex SCHEME_MIN SUB_PROCESSOR PERFBOOSTMODE 2
+powercfg /setacvalueindex SCHEME_MIN SUB_PROCESSOR PERFBOOSTPOLICY 2
+powercfg /setacvalueindex SCHEME_MIN SUB_PROCESSOR IDLEDISABLE 1
+
+:: Otimiza rede (TCP/IP)
+netsh int tcp set global autotuninglevel=normal
+netsh int tcp set global rss=enabled
+netsh int tcp set global chimney=enabled
+
+:: Otimiza GPU (prioridade máxima)
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "GPU Priority" /t REG_DWORD /d 8 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Priority" /t REG_DWORD /d 2 /f
+
+:: Otimiza inicialização
+bcdedit /set bootmenupolicy standard
+bcdedit /set useplatformclock yes
+bcdedit /set disabledynamictick yes
+
+echo Otimizacao completa aplicada!
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:abrir_rapido_avancado
+cls
+echo Otimizando abertura de arquivos e programas (Windows 10/11)...
+
+:: Reduz delay dos menus
+reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "0" /f
+
+:: Desabilita animações de janelas
+reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d 0 /f
+
+:: Aumenta prioridade de processos interativos
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f
+
+:: Otimiza pré-carregamento do Menu Iniciar
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_TrackProgs /t REG_DWORD /d 0 /f
+
+:: Ajusta tempo de encerramento de aplicativos travados
+reg add "HKCU\Control Panel\Desktop" /v AutoEndTasks /t REG_SZ /d "1" /f
+reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "1000" /f
+reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "1000" /f
+
+:: Otimiza cache de disco para SSD/NVMe
+fsutil behavior set disabledeletenotify 0
+
+:: Limpa arquivos temporários e prefetch
+del /s /f /q C:\Windows\Temp\*.* >nul 2>&1
+del /s /f /q %temp%\*.* >nul 2>&1
+del /s /f /q C:\Windows\Prefetch\*.* >nul 2>&1
+
+echo Otimização avançada aplicada! Arquivos e programas devem abrir mais rápido.
+pause
+goto menu
+
+:mouse_rapido
+cls
+echo Ajustando velocidade de clique do mouse...
+
+:: Define tempo de duplo clique para o mínimo (mais rápido)
+reg add "HKCU\Control Panel\Mouse" /v DoubleClickSpeed /t REG_SZ /d "200" /f
+
+:: Define tempo de resposta do mouse para o mínimo
+reg add "HKCU\Control Panel\Mouse" /v MouseHoverTime /t REG_SZ /d "10" /f
+
+:: Define sensibilidade do mouse para alta precisão
+reg add "HKCU\Control Panel\Mouse" /v MouseSensitivity /t REG_SZ /d "20" /f
+
+:: Desativa aceleração do mouse (melhor para precisão)
+reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d "0" /f
+
+echo Velocidade de clique e resposta do mouse ajustadas!
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
