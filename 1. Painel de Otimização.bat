@@ -1617,6 +1617,11 @@ if %errorlevel% equ 0 (
 ) else (
     echo Ocorreu um erro ao tentar modificar o valor.
 )
+
+REM Ativa o plano de energia "Alto desempenho máximo"
+powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
+powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61
+
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
@@ -2053,6 +2058,14 @@ reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d "0
 
 :: Desabilitar efeitos visuais para desempenho máximo
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
+
+:: Limpar cache de arquivos temporários para evitar delay ao abrir apps novamente
+del /s /f /q %temp%\*.* >nul 2>&1
+del /s /f /q C:\Windows\Temp\*.* >nul 2>&1
+del /s /f /q C:\Windows\Prefetch\*.* >nul 2>&1
+
+:: Limpar cache de miniaturas do Explorer
+del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" >nul 2>&1
 
 echo Otimizacao de resposta aplicada! Reinicie o computador para melhores resultados.
 pause
