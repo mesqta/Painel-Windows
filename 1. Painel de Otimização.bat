@@ -23,6 +23,7 @@ echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
 echo [E] Ativar Notificacoes
+echo [F] Arrumar Bugs do Windows
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
@@ -48,6 +49,7 @@ if "%choice%"=="18" goto limpar_lixeira
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
 if /I "%choice%"=="E" goto ativar_notificacoes
+if /I "%choice%"=="F" goto arrumar_bugs_windows
 
 echo Opcao invalida. Por favor, escolha de 0 a 7.
 pause
@@ -2087,5 +2089,41 @@ Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settin
 Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance" /v "Enabled" /t REG_DWORD /d "1" /f 
 Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.WiFiNetworkManager" /v "Enabled" /t REG_DWORD /d "1" /f
 echo Notificacoes Reativadas!
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:arrumar_bugs_windows
+cls
+@echo off
+:: Remove políticas e chaves do Windows Update / WindowsSelfHost
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies" /f 2>nul
+reg delete "HKCU\Software\Microsoft\WindowsSelfHost" /f 2>nul
+reg delete "HKCU\Software\Policies" /f 2>nul
+
+reg delete "HKLM\Software\Microsoft\Policies" /f 2>nul
+reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies" /f 2>nul
+reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\WindowsStore\WindowsUpdate" /f 2>nul
+reg delete "HKLM\Software\Microsoft\WindowsSelfHost" /f 2>nul
+reg delete "HKLM\Software\Policies" /f 2>nul
+
+reg delete "HKLM\Software\WOW6432Node\Microsoft\Policies" /f 2>nul
+reg delete "HKLM\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Policies" /f 2>nul
+reg delete "HKLM\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\WindowsStore\WindowsUpdate" /f 2>nul
+
+:: Ativa o TrustedInstaller para iniciar automaticamente
+sc config trustedinstaller start=auto
+
+:: Apaga chaves de políticas e Windows Insider
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies" /f
+reg delete "HKCU\Software\Microsoft\WindowsSelfHost" /f
+reg delete "HKCU\Software\Policies" /f
+
+reg delete "HKLM\Software\Microsoft\Policies" /f
+reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies" /f
+reg delete "HKLM\Software\Microsoft\WindowsSelfHost" /f
+reg delete "HKLM\Software\Policies" /f
+reg delete "HKLM\Software\WOW6432Node\Microsoft\Policies" /f
+
+echo Bugs arrumados!
 pause
 goto menu
