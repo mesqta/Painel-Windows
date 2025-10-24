@@ -11,6 +11,7 @@ echo   [2] Otimizacoes de Energia (Planos de energia, Hibernacao)
 echo   [3] Otimizacoes de USB e Armazenamento (SSD/NVMe, Latencia)
 echo   [4] Otimizacoes para Jogos e Latencia (Rede, Mouse, Discord)
 echo   [5] Reduzir Processos em Segundo Plano (SvcHost, Services)
+echo   [6] Otimizacao de Mouse
 echo.
 echo   LIMPEZA E DEBLOAT:
 echo   [6] Limpeza Completa de Arquivos (Cache, Logs, Temp)
@@ -30,11 +31,12 @@ if "%choice%"=="2" goto power_optimizations
 if "%choice%"=="3" goto usb_optimizations
 if "%choice%"=="4" goto otimizar_discord_jogos
 if "%choice%"=="5" goto reduce_processes
-if "%choice%"=="6" goto limpar_arquivos
-if "%choice%"=="7" goto uninstall_useless_apps
-if "%choice%"=="8" goto disable_settings
-if "%choice%"=="9" goto arrumar_bugs_windows
-if "%choice%"=="10" goto ativar_notificacoes
+if "%choice%"=="6" goto mouse_settings
+if "%choice%"=="7" goto limpar_arquivos
+if "%choice%"=="8" goto uninstall_useless_apps
+if "%choice%"=="9" goto disable_settings
+if "%choice%"=="10" goto arrumar_bugs_windows
+if "%choice%"=="11" goto ativar_notificacoes
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 
@@ -1741,5 +1743,23 @@ reg delete "HKLM\Software\Policies" /f
 reg delete "HKLM\Software\WOW6432Node\Microsoft\Policies" /f
 
 echo Bugs arrumados!
+pause
+goto menu
+
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:mouse_settings
+cls
+
+:: Desativar a aceleracao do mouse (melhor para jogos e precisao)
+reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d "0" /f
+echo Aceleracao do mouse desativada.
+
+:: Ajustar o tempo de atraso do clique duplo (em milissegundos)
+set /p doubleClickSpeed="Digite o tempo de atraso para clique duplo (em ms, padrao 500): "
+if "%doubleClickSpeed%"=="" set doubleClickSpeed=500
+reg add "HKCU\Control Panel\Mouse" /v DoubleClickSpeed /t REG_SZ /d "%doubleClickSpeed%" /f
+echo Tempo de atraso do clique duplo ajustado para %doubleClickSpeed% ms.
 pause
 goto menu
