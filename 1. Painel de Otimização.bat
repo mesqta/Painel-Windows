@@ -1,57 +1,44 @@
 @echo off
 :menu
 cls
-echo Escolha uma opcao:
-echo [1] Desativar Servicos
-echo [2] General System Optimizations
-echo [3] Power Optimizations
-echo [4] USB Optimizations
-echo [5] System Debloat
-echo [6] Storage Optimizations
-echo [7] Uninstall Useless Apps
-echo [8] Disable GameDvr
-echo [9] Set memoryusage
-echo [10] Activate processor performance boost mode
-echo [11] Reduce processes
-echo [12] Disable Settings w11
-echo [13] Mouse Settings
-echo [14] Otimizacoes Extras
-echo [15] Otimizar para Discord + Jogos
-echo [16] Remover Travamentos e Lentidoes
-echo [17] Resposta Instantanea ao Abrir Apps e Janelas
-echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-echo [S] Fechar Programa
-echo [L] Limpar Arquivos
-echo [E] Ativar Notificacoes
-echo [F] Arrumar Bugs do Windows
+echo =================================================================
+echo =                  PAINEL DE OTIMIZACAO WINDOWS                 =
+echo =================================================================
+echo.
+echo   OTIMIZACOES DE DESEMPENHO:
+echo   [1] Otimizacoes Gerais do Sistema (Timers, NTFS, Prioridades)
+echo   [2] Otimizacoes de Energia (Planos de energia, Hibernacao)
+echo   [3] Otimizacoes de USB e Armazenamento (SSD/NVMe, Latencia)
+echo   [4] Otimizacoes para Jogos e Latencia (Rede, Mouse, Discord)
+echo   [5] Reduzir Processos em Segundo Plano (SvcHost, Services)
+echo.
+echo   LIMPEZA E DEBLOAT:
+echo   [6] Limpeza Completa de Arquivos (Cache, Logs, Temp)
+echo   [7] Remover Apps Inuteis do Windows (Bloatware)
+echo   [8] Desativar Recursos Visuais e Extras do Windows
+echo.
+echo   UTILITARIOS:
+echo   [9] Reparar Componentes do Windows Update
+echo   [10] Reativar Notificacoes do Sistema
+echo.
+echo   [S] Sair
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
-if "%choice%"=="1" goto desativar_servicos
-if "%choice%"=="2" goto general_system_optimizations
-if "%choice%"=="3" goto power_optimizations
-if "%choice%"=="4" goto usb_optimizations
-if "%choice%"=="5" goto system_debloat
-if "%choice%"=="6" goto storage_optimizations
+if "%choice%"=="1" goto general_system_optimizations
+if "%choice%"=="2" goto power_optimizations
+if "%choice%"=="3" goto usb_optimizations
+if "%choice%"=="4" goto otimizar_discord_jogos
+if "%choice%"=="5" goto reduce_processes
+if "%choice%"=="6" goto limpar_arquivos
 if "%choice%"=="7" goto uninstall_useless_apps
-if "%choice%"=="8" goto disable_game_dvr
-if "%choice%"=="9" goto set_memory_usage
-if "%choice%"=="10" goto activate_processor_performance_boost_mode
-if "%choice%"=="11" goto reduce_processes
-if "%choice%"=="12" goto disable_settings
-if "%choice%"=="13" goto mouse_settings
-if "%choice%"=="14" goto extra_optimizations
-if "%choice%"=="15" goto otimizar_discord_jogos
-if "%choice%"=="16" goto remover_travamentos
-if "%choice%"=="17" goto aumentar_resposta_apps
-if "%choice%"=="18" goto limpar_lixeira
+if "%choice%"=="8" goto disable_settings
+if "%choice%"=="9" goto arrumar_bugs_windows
+if "%choice%"=="10" goto ativar_notificacoes
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
-if /I "%choice%"=="L" goto limpar_arquivos
-if /I "%choice%"=="E" goto ativar_notificacoes
-if /I "%choice%"=="F" goto arrumar_bugs_windows
 
-echo Opcao invalida. Por favor, escolha de 0 a 7.
+echo Opcao invalida.
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
@@ -77,529 +64,145 @@ goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :desativar_servicos
 cls
-echo Desabilitando o servico SysMain (SuperFetch) e outros servicos...
-pause
+echo =================================================================
+echo =        Desabilitando servicos desnecessarios do Windows       =
+echo =================================================================
+echo.
 
-sc config SysMain start= disabled
-net stop SysMain
+:: Verifica se o script esta rodando como administrador
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ERRO] Este script precisa ser executado como Administrador.
+    pause
+    goto menu
+)
 
-sc config WSearch start= disabled
-net stop WSearch
+echo [INFO] Esta operacao ira desabilitar servicos que a maioria dos
+echo        usuarios, especialmente gamers, nao utiliza.
+echo.
+echo [AVISO] O servico de impressao (Spooler) sera desativado.
+echo         Se voce usa uma impressora, pode reativa-lo manualmente depois.
+echo.
+set /p "continue=Deseja continuar? (S/N): "
+if /i not "%continue%"=="S" goto menu
 
-sc config TapiSrv start= disabled
-net stop TapiSrv
+echo.
+echo [INFO] Desabilitando servicos...
+echo.
 
-sc config Spooler start= disabled
-net stop Spooler
+:: Lista de servicos a serem desabilitados. Adicione ou remova nomes de servicos aqui.
+set "services_to_disable=DiagTrack dmwappushservice diagsvc WerSvc WSearch SysMain Spooler TapiSrv PhoneSvc RemoteRegistry SCardSvr WbioSrvc SensorService bthserv pla workfolderssvc icssvc Fax"
 
-sc config TermService start= disabled
-net stop TermService
+for %%s in (%services_to_disable%) do (
+    echo Desabilitando e parando o servico: %%s
+    sc config "%%s" start=disabled >nul 2>&1
+    net stop "%%s" >nul 2>&1
+)
 
-sc config PhoneSvc start= disabled
-net stop PhoneSvc
+echo.
+echo [INFO] Desabilitando tarefas agendadas relacionadas a telemetria e manutencao...
+schtasks /Change /TN "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /Disable >nul 2>&1
+schtasks /Change /TN "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /Disable >nul 2>&1
+schtasks /Change /TN "\Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" /Disable >nul 2>&1
+schtasks /Change /TN "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" /Disable >nul 2>&1
+schtasks /Change /TN "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" /Disable >nul 2>&1
+schtasks /Change /TN "\Microsoft\Windows\Maintenance\WinSAT" /Disable >nul 2>&1
 
-sc config BDBESVC start= disabled
-net stop BDBESVC
-
-sc config WbioSrvc start= disabled
-net stop WbioSrvc
-
-sc config RemoteRegistry start= disabled
-net stop RemoteRegistry
-
-sc config SCardSvr start= disabled
-net stop SCardSvr
-
-sc config WerSvc start= disabled
-net stop WerSvc
-
-:: Desabilitar o servico WinSAT
-sc config WinSAT start= disabled
-net stop WinSAT
-
-:: Desabilitar tarefas agendadas do WinSAT no Task Scheduler
-schtasks /Change /TN "\Microsoft\Windows\Maintenance\WinSAT" /Disable
-schtasks /Change /TN "\Microsoft\Windows\Maintenance\WinSAT_Regular" /Disable
-
-:: Desabilitar os serviços adicionais
-sc config WpcMonSvc start= disabled
-net stop WpcMonSvc
-
-sc config diagsvc start= disabled
-net stop diagsvc
-
-sc config DiagTrack start= disabled
-net stop DiagTrack
-
-sc config Netlogon start= disabled
-net stop Netlogon
-
-sc config pla start= disabled
-net stop pla
-
-sc config workfolderssvc start= disabled
-net stop workfolderssvc
-
-sc config SCPolicySvc start= disabled
-net stop SCPolicySvc
-
-sc config ifscv start= disabled
-net stop ifscv
-
-sc config icssvc start= disabled
-net stop icssvc
-
-sc config SensorService start= disabled
-net stop SensorService
-
-sc config bthserv start= disabled
-net stop bthserv
-
-sc config InventorySvc start= disabled
-net stop InventorySvc
-
-:: Lista de processos para encerrar
-call :killprocess msedge.exe
-call :killprocess onedrive.exe
-
-:: Desabilitar recursos de economia de energia
-echo %w% - Disabling Power Saving Features %b%
-powercfg /h off
-powercfg /setactive scheme_min
-powercfg /change scheme_min /monitor-timeout-ac 0
-powercfg /change scheme_min /monitor-timeout-dc 0
-powercfg /change scheme_min /disk-timeout-ac 0
-powercfg /change scheme_min /disk-timeout-dc 0
-powercfg /change scheme_min /standby-timeout-ac 0
-powercfg /change scheme_min /standby-timeout-dc 0
-powercfg /change scheme_min /hibernate-timeout-ac 0
-powercfg /change scheme_min /hibernate-timeout-dc 0
-
-echo %w% - Desabilitando coisas extras %b%
-echo %w% - Disabling Autologgers%b%
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\AppModel" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\Cellcore" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\Circular Kernel Context Logger" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\CloudExperienceHostOobe" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\DataMarket" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\DefenderApiLogger" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\DefenderAuditLogger" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\DiagLog" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\HolographicDevice" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\iclsClient" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\iclsProxy" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\LwtNetLog" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\Mellanox-Kernel" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\Microsoft-Windows-AssignedAccess-Trace" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\Microsoft-Windows-Setup" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\NBSMBLOGGER" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\PEAuthLog" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\RdrLog" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\ReadyBoot" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\SetupPlatform" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\SetupPlatformTel" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\SocketHeciServer" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\SpoolerLogger" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\SQMLogger" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\TCPIPLOGGER" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\TileStore" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\Tpm" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\TPMProvisioningService" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\UBPM" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\WdiContextLog" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\WFP-IPsec Trace" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\WiFiDriverIHVSession" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\WiFiDriverIHVSessionRepro" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\WiFiSession" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\WMI\Autologger\WinPhoneCritical" /v "Start" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WUDF" /v "LogEnabling" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WUDF" /v "LogLevel" /t REG_DWORD /d "0" /f  
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableThirdPartySuggestions" /t REG_DWORD /d "1" /f 
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f 
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Lsa\Credssp" /v "DebugLogLevel" /t REG_DWORD /d "0" /f
-
-echo %w% - Disabling Telemetry Through Task Scheduler %b%
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator" 
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\BthSQM" 
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\BthSQM" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" 
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" 
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\Uploader" 
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\Uploader" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" 
-schtasks /change /tn "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Application Experience\ProgramDataUpdater" 
-schtasks /change /tn "\Microsoft\Windows\Application Experience\ProgramDataUpdater" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Application Experience\StartupAppTask" 
-schtasks /change /tn "\Microsoft\Windows\Application Experience\StartupAppTask" /Disable 
-schtasks /end /tn "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" 
-schtasks /change /tn "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" /Disable 
-schtasks /end /tn "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver" 
-schtasks /change /tn "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticResolver" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem" 
-schtasks /change /tn "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Shell\FamilySafetyMonitor" 
-schtasks /change /tn "\Microsoft\Windows\Shell\FamilySafetyMonitor" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Shell\FamilySafetyRefresh" 
-schtasks /change /tn "\Microsoft\Windows\Shell\FamilySafetyRefresh" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Shell\FamilySafetyUpload" 
-schtasks /change /tn "\Microsoft\Windows\Shell\FamilySafetyUpload" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Autochk\Proxy" 
-schtasks /change /tn "\Microsoft\Windows\Autochk\Proxy" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Maintenance\WinSAT" 
-schtasks /change /tn "\Microsoft\Windows\Maintenance\WinSAT" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Application Experience\AitAgent" 
-schtasks /change /tn "\Microsoft\Windows\Application Experience\AitAgent" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Windows Error Reporting\QueueReporting" 
-schtasks /change /tn "\Microsoft\Windows\Windows Error Reporting\QueueReporting" /Disable 
-schtasks /end /tn "\Microsoft\Windows\CloudExperienceHost\CreateObjectTask" 
-schtasks /change /tn "\Microsoft\Windows\CloudExperienceHost\CreateObjectTask" /Disable 
-schtasks /end /tn "\Microsoft\Windows\DiskFootprint\Diagnostics" 
-schtasks /change /tn "\Microsoft\Windows\DiskFootprint\Diagnostics" /Disable 
-schtasks /end /tn "\Microsoft\Windows\PI\Sqm-Tasks" 
-schtasks /change /tn "\Microsoft\Windows\PI\Sqm-Tasks" /Disable 
-schtasks /end /tn "\Microsoft\Windows\NetTrace\GatherNetworkInfo" 
-schtasks /change /tn "\Microsoft\Windows\NetTrace\GatherNetworkInfo" /Disable 
-schtasks /end /tn "\Microsoft\Windows\AppID\SmartScreenSpecific" 
-schtasks /change /tn "\Microsoft\Windows\AppID\SmartScreenSpecific" /Disable 
-schtasks /end /tn "\Microsoft\Office\OfficeTelemetryAgentFallBack2016" 
-schtasks /change /tn "\Microsoft\Office\OfficeTelemetryAgentFallBack2016" /Disable 
-schtasks /end /tn "\Microsoft\Office\OfficeTelemetryAgentLogOn2016" 
-schtasks /change /tn "\Microsoft\Office\OfficeTelemetryAgentLogOn2016" /Disable 
-schtasks /end /tn "\Microsoft\Office\OfficeTelemetryAgentLogOn" 
-schtasks /change /TN "\Microsoft\Office\OfficeTelemetryAgentLogOn" /Disable 
-schtasks /end /tn "\Microsoftd\Office\OfficeTelemetryAgentFallBack" 
-schtasks /change /TN "\Microsoftd\Office\OfficeTelemetryAgentFallBack" /Disable 
-schtasks /end /tn "\Microsoft\Office\Office 15 Subscription Heartbeat" 
-schtasks /change /TN "\Microsoft\Office\Office 15 Subscription Heartbeat" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Time Synchronization\ForceSynchronizeTime" 
-schtasks /change /TN "\Microsoft\Windows\Time Synchronization\ForceSynchronizeTime" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Time Synchronization\SynchronizeTime" 
-schtasks /change /TN "\Microsoft\Windows\Time Synchronization\SynchronizeTime" /Disable 
-schtasks /end /tn "\Microsoft\Windows\WindowsUpdate\Automatic App Update" 
-schtasks /change /TN "\Microsoft\Windows\WindowsUpdate\Automatic App Update" /Disable 
-schtasks /end /tn "\Microsoft\Windows\Device Information\Device" 
-schtasks /change /TN "\Microsoft\Windows\Device Information\Device" /Disable 
-
-echo %w% - Disabling Telemetry Through Regsitry %b%
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Device Metadata" /v "PreventDeviceMetadataFromNetwork" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" /v "AllowTelemetry" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\SOFTWARE\Microsoft\InputPersonalization" /v "RestrictImplicitInkCollection" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\SOFTWARE\Microsoft\InputPersonalization" /v "RestrictImplicitTextCollection" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Permissions\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" /v "SensorPermissionState" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" /v "SensorPermissionState" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WUDF" /v "LogEnable" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WUDF" /v "LogLevel" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "AllowTelemetry" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "DoNotShowFeedbackNotifications" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "AllowCommercialDataPipeline" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "AllowDeviceNameInTelemetry" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "LimitEnhancedDiagnosticDataWindowsAnalytics" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "MicrosoftEdgeDataOptIn" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\SOFTWARE\Microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\SOFTWARE\Microsoft\Siuf\Rules" /v "PeriodInNanoSeconds" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\SOFTWARE\Policies\Microsoft\Assistance\Client\1.0" /v "NoExplicitFeedback" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Assistance\Client\1.0" /v "NoActiveHelp" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppCompat" /v "DisableInventory" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppCompat" /v "AITEnable" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppCompat" /v "DisableUAR" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\TabletPC" /v "PreventHandwritingDataSharing" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\TabletPC" /v "DoSvc" /t REG_DWORD /d "3" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableLocation" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableLocationScripting" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableSensors" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableWindowsLocationProvider" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v "PublishUserActivities" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v "EnableActivityFeed" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v "UploadUserActivities" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\SQMClient\Windows" /v "CEIPEnable" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\SQMClient\Reliability" /v "CEIPEnable" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\SQMClient\Reliability" /v "SqmLoggerRunning" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\SQMClient\Windows" /v "CEIPEnable" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\SQMClient\Windows" /v "DisableOptinExperience" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\SQMClient\Windows" /v "SqmLoggerRunning" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\SQMClient\IE" /v "SqmLoggerRunning" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\HandwritingErrorReports" /v "PreventHandwritingErrorReports" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\SOFTWARE\Microsoft\MediaPlayer\Preferences" /v "UsageTracking" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableSoftLanding" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Peernet" /v "Disabled" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" /v DODownloadMode /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" /v value /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" /v "HarvestContacts" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "Enabled" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" /v "DisabledByGroupPolicy" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\MRT" /v "DontOfferThroughWUAU" /t REG_DWORD /d "1" /f
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Biometrics" /v "Enabled" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\dmwappushservice" /v "Start" /t REG_DWORD /d "4" /f
-Reg.exe add "HKCU\Control Panel\International\User Profile" /v "HttpAcceptLanguageOptOut" /t REG_DWORD /d "1" /f
-
-echo %w% - Disabling Office Telemetry  %b%
-Reg.exe add "HKCU\Software\Microsoft\Office\Common\ClientTelemetry" /v "DisableTelemetry" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Common" /v "sendcustomerdata" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Common\Feedback" /v "Enabled" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Common\Feedback" /v "includescreenshot" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Outlook\Options\Mail" /v "EnableLogging" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Word\Options" /v "EnableLogging" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\Common\ClientTelemetry" /v "SendTelemetry" /t REG_DWORD /d "3" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Common" /v "qmEnable" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Common" /v "updatereliabilitydata" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Common\General" /v "shownfirstrunoptin" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Common\General" /v "skydrivesigninoption" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Common\ptwatson" /v "ptwoptin" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Firstrun" /v "Disablemovie" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM" /v "Enablelogging" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM" /v "EnableUpload" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM" /v "EnableFileObfuscation" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedapplications" /v "accesssolution" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedapplications" /v "olksolution" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedapplications" /v "onenotesolution" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedapplications" /v "pptsolution" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedapplications" /v "projectsolution" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedapplications" /v "publishersolution" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedapplications" /v "visiosolution" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedapplications" /v "wdsolution" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedapplications" /v "xlsolution" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedsolutiontypes" /v "agave" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedsolutiontypes" /v "appaddins" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedsolutiontypes" /v "comaddins" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedsolutiontypes" /v "documentfiles" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\Software\Microsoft\Office\16.0\OSM\preventedsolutiontypes" /v "templatefiles" /t REG_DWORD /d "1" /f
-
-echo %w% - Disabling Customer Experience Improvement Program%b%
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator" > nul 2>&1
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\BthSQM" > nul 2>&1 
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\BthSQM" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" > nul 2>&1
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" > nul 2>&1 
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Customer Experience Improvement Program\Uploader" > nul 2>&1
-schtasks /change /tn "\Microsoft\Windows\Customer Experience Improvement Program\Uploader" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" > nul 2>&1
-schtasks /change /tn "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Application Experience\ProgramDataUpdater" > nul 2>&1
-schtasks /change /tn "\Microsoft\Windows\Application Experience\ProgramDataUpdater" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Application Experience\StartupAppTask" > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Shell\FamilySafetyMonitor" > nul 2>&1
-schtasks /change /tn "\Microsoft\Windows\Shell\FamilySafetyMonitor" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Shell\FamilySafetyRefresh" > nul 2>&1
-schtasks /change /tn "\Microsoft\Windows\Shell\FamilySafetyRefresh" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Shell\FamilySafetyUpload" > nul 2>&1
-schtasks /change /tn "\Microsoft\Windows\Shell\FamilySafetyUpload" /Disable > nul 2>&1
-schtasks /end /tn "\Microsoft\Windows\Maintenance\WinSAT" > nul 2>&1
-
-echo %w% - Disabling Bluetooth %b%
-Reg.exe add "HKLM\SYSTEM\ControlSet001\Services\BTAGService" /v "Start" /t REG_DWORD /d "4" /f
-Reg.exe add "HKLM\SYSTEM\ControlSet001\Services\bthserv" /v "Start" /t REG_DWORD /d "4" /f
-Reg.exe add "HKLM\SYSTEM\ControlSet001\Services\BthAvctpSvc" /v "Start" /t REG_DWORD /d "4" /f
-Reg.exe add "HKLM\SYSTEM\ControlSet001\Services\BluetoothUserService" /v "Start" /t REG_DWORD /d "4" /f
-
-echo %w% - Disabling Power Telemetry %b%
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "EnergyEstimationEnabled" /t REG_DWORD /d "0" /f
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "EnergyEstimationDisabled" /t REG_DWORD /d "1" /f
-
-echo %w% - Disabling Hibernation and Fast Startup %b%
-powercfg /h off
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v "HiberbootEnabled" /t REG_DWORD /d "0" /f
-
-echo %w% - Optimizing Performance Time Check Interval %b%
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "PerfTimeCheckInterval" /t REG_DWORD /d "60000" /f
-
-echo Servicos e tarefas agendadas desabilitados com sucesso.
+echo.
+echo =================================================================
+echo =      Servicos e tarefas desabilitados com sucesso!            =
+echo =================================================================
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :limpar_arquivos
 cls
-echo Limpando arquivos de log, arquivos temp, caches e lixo do computador...
+echo =================================================================
+echo =           Limpando arquivos desnecessarios do sistema         =
+echo =================================================================
+echo.
 
-:: Limpa a memória RAM
-echo Liberando memória RAM...
-echo.> %temp%\emptyfile
-del %temp%\emptyfile
+:: Verifica se o script esta rodando como administrador
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ERRO] Este script precisa ser executado como Administrador.
+    pause
+    goto menu
+)
 
-:: Limpeza de arquivos de log e temporarios do sistema
-del *.log /a /s /q /f
-del /s /f /q C:\Windows\Temp\*.*
-del /s /f /q C:\Windows\Prefetch\*.*
-del /s /f /q %temp%\*.*
-del /s /f /q C:\Windows\Logs\*.*
-del /s /f /q C:\Windows\Minidump\*.*
+echo [INFO] Parando servicos para liberar arquivos em uso...
+net stop wuauserv >nul 2>&1
+net stop UsoSvc >nul 2>&1
 
-:: Limpeza de rastros de navegacao (historico, cookies, etc.)
+echo [INFO] Limpando cache de DNS...
+ipconfig /flushdns
+
+echo [INFO] Limpando rastros de navegacao do Internet Explorer/Edge Legacy...
 RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 8
 RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 16384
 RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 2
 
-:: Limpeza de DNS
-ipconfig /flushdns
-
-:: Limpeza de thumbnails (miniaturas)
-del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
-
-:: Limpeza de arquivos de sistema antigos (Windows.old)
+echo [INFO] Limpando pasta de instalacoes antigas do Windows (Windows.old)...
 if exist C:\Windows.old rd /s /q C:\Windows.old
 
-:: Limpeza de cache do .NET Framework
-del /s /f /q "%WINDIR%\Microsoft.NET\Framework\*\Temporary ASP.NET Files\*.*"
-del /s /f /q "%WINDIR%\Microsoft.NET\Framework64\*\Temporary ASP.NET Files\*.*"
-
-:: Limpeza de cache do OneDrive
-del /s /f /q "%LOCALAPPDATA%\Microsoft\OneDrive\*\cache\*.*"
-
-:: Limpeza de cache do Windows Update
-del /s /f /q C:\Windows\SoftwareDistribution\Download\*.*
-
-:: Limpeza de atualizações do Windows
-net stop wuauserv
-net stop UsoSvc
-rd /s /q C:\Windows\SoftwareDistribution
-md C:\Windows\SoftwareDistribution
-
-:: Limpeza da pasta Downloads
-echo Limpando a pasta Downloads...
-del /s /f /q "%USERPROFILE%\Downloads\*.*"
-rd /s /q "%USERPROFILE%\Downloads"
-md "%USERPROFILE%\Downloads"
-echo Pasta Downloads limpa.
-
-:: Limpeza da pasta Imagens
-echo Limpando a pasta Imagens...
-del /s /f /q "%USERPROFILE%\Pictures\*.*"
-rd /s /q "%USERPROFILE%\Pictures"
-md "%USERPROFILE%\Pictures"
-echo Pasta Imagens limpa.
-
-:: Limpeza de pastas temporárias
-RD /S /Q %temp%
-MKDIR %temp%
-takeown /f "%temp%" /r /d y
-RD /S /Q C:\Windows\Temp
-MKDIR C:\Windows\Temp
-takeown /f "C:\Windows\Temp" /r /d y
-takeown /f %temp% /r /d y
-
-:: Limpeza de caches de programas comuns
-del /s /f /q "%LOCALAPPDATA%\Discord\Cache\*.*"
-del /s /f /q "%LOCALAPPDATA%\Spotify\Storage\*.*"
-del /s /f /q "%LOCALAPPDATA%\Steam\htmlcache\*.*"
-del /s /f /q "%LOCALAPPDATA%\Microsoft\Teams\Cache\*.*"
-
-:: Limpeza de arquivos antigos do Windows Update
-del /s /f /q C:\Windows\SoftwareDistribution\Download\*.*
-del /s /f /q C:\Windows\System32\catroot2\*.*
-
-:: Limpeza da Lixeira
-echo Limpando a Lixeira...
-rd /s /q C:\$Recycle.bin
-echo Lixeira limpa.
-
-echo %w% -  Cleaning Useless Device Data...%b%
+echo [INFO] Limpando drivers de dispositivos antigos e desconhecidos...
 chcp 437 > nul
-@echo on
-POWERSHELL "$Devices = Get-PnpDevice | ? Status -eq Unknown;foreach ($Device in $Devices) { &\"pnputil\" /remove-device $Device.InstanceId }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-PnpDevice -Status Unknown | ForEach-Object { pnputil /remove-device $_.InstanceId }" >nul 2>&1
+chcp 65001 > nul
 
-del %temp%\*.* /s /q
-del C:\Windows\temp\*.*/s/q
-del C:\Windows\prefetch\*.*/s/q
-/s /f /q c:\windows\temp\*.*
-rd /s /q c:\windows\temp
-md c:\windows\temp
-del /s /f /q C:\WINDOWS\Prefetch
-del /s /f /q %temp%\*.*
-rd /s /q %temp%
-md %temp%
-deltree /y c:\windows\tempor~1
-deltree /y c:\windows\temp
-deltree /y c:\windows\tmp
-deltree /y c:\windows\ff*.tmp
-deltree /y c:\windows\history
-deltree /y c:\windows\cookies
-deltree /y c:\windows\recent
-deltree /y c:\windows\spool\printers
-del c:\WIN386.SWP
-cls
+echo [INFO] Limpando logs de eventos do Windows...
+for /F "tokens=*" %%G in ('wevtutil.exe el') DO (wevtutil.exe cl "%%G" >nul 2>&1)
 
-FOR /F "tokens=1, 2 * " %%V IN ('bcdedit') DO SET adminTest=%%V
-IF (%adminTest%)==(Access) goto noAdmin
+echo [INFO] Limpando Lixeira de todos os usuarios...
+rd /s /q %SystemDrive%\$Recycle.bin >nul 2>&1
 
-for /F "tokens=*" %%G in ('wevtutil.exe el') DO (
-    echo Limpando logs de eventos: %%G
-    wevtutil.exe cl %%G
+echo [INFO] Limpando arquivos de log e despejos de memoria...
+del /s /f /q %SystemRoot%\*.log >nul 2>&1
+del /s /f /q %SystemRoot%\Logs\*.* >nul 2>&1
+del /s /f /q %SystemRoot%\Panther\*.* >nul 2>&1
+del /s /f /q %SystemRoot%\Minidump\*.* >nul 2>&1
+del /s /f /q %SystemRoot%\inf\*.log >nul 2>&1
+
+echo [INFO] Limpando caches do sistema e de aplicativos...
+for %%D in (
+    "%SystemRoot%\Temp"
+    "%SystemRoot%\Prefetch"
+    "%temp%"
+    "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
+    "%LOCALAPPDATA%\Microsoft\Windows\Explorer\IconCache.db"
+    "%SystemRoot%\SoftwareDistribution"
+    "%LOCALAPPDATA%\Microsoft\Windows\INetCache"
+    "%LOCALAPPDATA%\Microsoft\Windows\WebCache"
+    "%LOCALAPPDATA%\Microsoft\Terminal Server Client\Cache"
+    "%WINDIR%\Microsoft.NET\Framework\*\Temporary ASP.NET Files"
+    "%WINDIR%\Microsoft.NET\Framework64\*\Temporary ASP.NET Files"
+    "%LOCALAPPDATA%\Microsoft\OneDrive\cache"
+    "%LOCALAPPDATA%\Discord\Cache"
+    "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache"
+    "%LOCALAPPDATA%\Mozilla\Firefox\Profiles\*\cache2"
+    "%LOCALAPPDATA%\Spotify\Storage"
+    "%LOCALAPPDATA%\Steam\htmlcache"
+    "%LOCALAPPDATA%\Microsoft\Teams\Cache"
+    "%LOCALAPPDATA%\Packages\Microsoft.WindowsStore_8wekyb3d8bbwe\LocalCache"
+) do (
+    if exist "%%~D" (
+        echo Limpando: %%~D
+        rd /s /q "%%~D" >nul 2>&1
+    )
 )
 
-del /s /f /q "%USERPROFILE%\Local Settings\History"\*.*
-rd /s /q "%USERPROFILE%\Local Settings\History"
-md "%USERPROFILE%\Local Settings\History"
+echo [INFO] Recriando pastas essenciais...
+mkdir "%SystemRoot%\Temp" >nul 2>&1
+mkdir "%temp%" >nul 2>&1
+mkdir "%SystemRoot%\SoftwareDistribution" >nul 2>&1
 
-del /s /f /q "%USERPROFILE%\Local Settings\Temporary Internet Files"\*.*
-rd /s /q "%USERPROFILE%\Local Settings\Temporary Internet Files"
-md "%USERPROFILE%\Local Settings\Temporary Internet Files"
+echo [INFO] Limpando relatorios de erro do Windows...
+del /s /f /q %ProgramData%\Microsoft\Windows\WER\*.* >nul 2>&1
 
-del /s /f /q "%USERPROFILE%\Local Settings\Temp"\*.*
-rd /s /q "%USERPROFILE%\Local Settings\Temp"
-md "%USERPROFILE%\Local Settings\Temp"
-
-del /s /f /q "%USERPROFILE%\Recent"\*.*
-rd /s /q "%USERPROFILE%\Recent"
-md "%USERPROFILE%\Recent"
-
-del /s /f /q "%USERPROFILE%\Cookies"\*.*
-rd /s /q "%USERPROFILE%\Cookies"
-md "%USERPROFILE%\Cookies"
-
-for /f %%a in ('wmic cpu get L2CacheSize ^| findstr /r "[0-9][0-9]"') do (
-    set /a l2c=%%a
-    set /a sum1=%%a
-)
-
-for /f %%a in ('wmic cpu get L3CacheSize ^| findstr /r "[0-9][0-9]"') do (
-    set /a l3c=%%a
-    set /a sum2=%%a
-)
-
-RD /S /Q %temp%
-MKDIR %temp%
-takeown /f "%temp%" /r /d y
-takeown /f "C:\Windows\Temp" /r /d y
-RD /S /Q C:\Windows\Temp
-MKDIR C:\Windows\Temp
-takeown /f "C:\Windows\Temp" /r /d y
-takeown /f %temp% /r /d y
-takeown /A /R /D Y /F C:\Users\%USERNAME%\AppData\Local\Temp\
-icacls C:\Users\%USERNAME%\AppData\Local\Temp\ /grant administradores:F /T /C
-rmdir /q /s C:\Users\%USERNAME%\AppData\Local\Temp\
-md C:\Users\%USERNAME%\AppData\Local\Temp\
-takeown /A /R /D Y /F C:\windows\temp
-icacls C:\windows\temp /grant administradores:F /T /C
-rmdir /q /s c:\windows\temp
-md c:\windows\temp
-cls
-
-del c:\windows\logs\cbs\*.log
-del C:\Windows\Logs\MoSetup\*.log
-del C:\Windows\Panther\*.log /s /q
-del C:\Windows\inf\*.log /s /q
-del C:\Windows\logs\*.log /s /q
-del C:\Windows\SoftwareDistribution\*.log /s /q
-del C:\Windows\Microsoft.NET\*.log /s /q
-del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\WebCache\*.log /s /q
-del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\SettingSync\*.log /s /q
-del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\Explorer\ThumbCacheToDelete\*.tmp /s /q
-del C:\Users\%USERNAME%\AppData\Local\Microsoft\"Terminal Server Client"\Cache\*.bin /s /q
-rmdir /q /s C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\INetCache\
-
-rd /s /q C:\Windows\SoftwareDistribution
-md C:\Windows\SoftwareDistribution
-
-cd/
-del *.log /a /s /q /f
-@echo off
-echo Limpeza concluida.
+echo.
+echo =================================================================
+echo =                      Limpeza concluida!                       =
+echo =================================================================
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
@@ -1631,6 +1234,19 @@ goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :reduce_processes
 cls
+echo =================================================================
+echo =              Otimizando e Reduzindo Processos                 =
+echo =================================================================
+echo.
+
+:: Verifica se o script está rodando como administrador
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ERRO] Este script precisa ser executado como Administrador.
+    pause
+    goto menu
+)
+
 :: Verifica se o script está rodando como administrador
 net session >nul 2>&1
 if %errorLevel% neq 0 (
