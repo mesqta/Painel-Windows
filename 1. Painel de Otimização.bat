@@ -14,13 +14,13 @@ echo   [5] Reduzir Processos em Segundo Plano (SvcHost, Services)
 echo   [6] Otimizacao de Mouse
 echo.
 echo   LIMPEZA E DEBLOAT:
-echo   [6] Limpeza Completa de Arquivos (Cache, Logs, Temp)
-echo   [7] Remover Apps Inuteis do Windows (Bloatware)
-echo   [8] Desativar Recursos Visuais e Extras do Windows
+echo   [7] Limpeza Completa de Arquivos (Cache, Logs, Temp)
+echo   [8] Remover Apps Inuteis do Windows (Bloatware)
+echo   [9] Desativar Recursos Visuais e Extras do Windows
 echo.
 echo   UTILITARIOS:
-echo   [9] Reparar Componentes do Windows Update
-echo   [10] Reativar Notificacoes do Sistema
+echo   [10] Reparar Componentes do Windows Update
+echo   [11] Reativar Notificacoes do Sistema
 echo.
 echo   [S] Sair
 echo.
