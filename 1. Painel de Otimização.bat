@@ -178,20 +178,36 @@ for %%D in (
     "%LOCALAPPDATA%\Microsoft\Terminal Server Client\Cache"
     "%WINDIR%\Microsoft.NET\Framework\*\Temporary ASP.NET Files"
     "%WINDIR%\Microsoft.NET\Framework64\*\Temporary ASP.NET Files"
-    "%LOCALAPPDATA%\Microsoft\OneDrive\cache"
+    "%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Cache"
+    "%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Code Cache"
+    "%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\GPUCache"
+    "%LOCALAPPDATA%\Microsoft\OneDrive\setup\cache"
     "%LOCALAPPDATA%\Discord\Cache"
+    "%LOCALAPPDATA%\Discord\Code Cache"
+    "%LOCALAPPDATA%\Discord\GPUCache"
     "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache"
+    "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Code Cache"
+    "%LOCALAPPDATA%\Google\Chrome\User Data\Default\GPUCache"
     "%LOCALAPPDATA%\Mozilla\Firefox\Profiles\*\cache2"
     "%LOCALAPPDATA%\Spotify\Storage"
     "%LOCALAPPDATA%\Steam\htmlcache"
     "%LOCALAPPDATA%\Microsoft\Teams\Cache"
     "%LOCALAPPDATA%\Packages\Microsoft.WindowsStore_8wekyb3d8bbwe\LocalCache"
+    "%ProgramData%\NVIDIA Corporation\NV_Cache"
+    "%LOCALAPPDATA%\EpicGamesLauncher\Saved\cache"
+    "%LOCALAPPDATA%\Opera Software\Opera Stable\Cache"
+    "%LOCALAPPDATA%\BraveSoftware\Brave-Browser\User Data\Default\Cache"
 ) do (
     if exist "%%~D" (
         echo Limpando: %%~D
         rd /s /q "%%~D" >nul 2>&1
     )
 )
+
+echo [INFO] Limpando cache de fontes e otimizacao de entrega...
+del /s /f /q %WinDir%\ServiceProfiles\LocalService\AppData\Local\FontCache\*.* >nul 2>&1
+del /s /f /q %windir%\SoftwareDistribution\DeliveryOptimization\*.* >nul 2>&1
+
 
 echo [INFO] Recriando pastas essenciais...
 mkdir "%SystemRoot%\Temp" >nul 2>&1
@@ -1420,23 +1436,6 @@ echo Legendas desativadas.
 
 echo.
 echo Todas as funções inúteis foram desativadas!
-pause
-goto menu
-:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
-:mouse_settings
-cls
-
-:: Desativar a aceleracao do mouse (melhor para jogos e precisao)
-reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d "0" /f
-reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d "0" /f
-reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d "0" /f
-echo Aceleracao do mouse desativada.
-
-:: Ajustar o tempo de atraso do clique duplo (em milissegundos)
-set /p doubleClickSpeed="Digite o tempo de atraso para clique duplo (em ms, padrao 500): "
-if "%doubleClickSpeed%"=="" set doubleClickSpeed=500
-reg add "HKCU\Control Panel\Mouse" /v DoubleClickSpeed /t REG_SZ /d "%doubleClickSpeed%" /f
-echo Tempo de atraso do clique duplo ajustado para %doubleClickSpeed% ms.
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
