@@ -21,10 +21,12 @@ echo.
 echo   UTILITARIOS:
 echo   [10] Reparar Componentes do Windows Update
 echo   [11] Reativar Notificacoes do Sistema
+echo   [12] Otimizacoes de Rede e Internet (Latencia, Velocidade)
+echo   [13] Otimizar DNS (Acelerar Navegacao)
 echo.
 echo   [S] Sair
 echo.
-set /p choice=Digite o numero da opcao e pressione Enter: 
+set /p choice=Digite o numero da opcao e pressione Enter:
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if "%choice%"=="1" goto general_system_optimizations
 if "%choice%"=="2" goto power_optimizations
@@ -37,6 +39,8 @@ if "%choice%"=="8" goto uninstall_useless_apps
 if "%choice%"=="9" goto disable_settings
 if "%choice%"=="10" goto arrumar_bugs_windows
 if "%choice%"=="11" goto ativar_notificacoes
+if "%choice%"=="12" goto internet_optimizations
+if "%choice%"=="13" goto dns_optimization
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 
@@ -113,6 +117,72 @@ schtasks /Change /TN "\Microsoft\Windows\Maintenance\WinSAT" /Disable >nul 2>&1
 echo.
 echo =================================================================
 echo =      Servicos e tarefas desabilitados com sucesso!            =
+echo =================================================================
+pause
+goto menu
+
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:dns_optimization
+cls
+echo =================================================================
+echo =              OTIMIZACAO DE SERVIDORES DNS                     =
+echo =================================================================
+echo.
+echo Mudar para um servidor DNS mais rapido pode acelerar o tempo de
+echo carregamento de sites e a resolucao de nomes em jogos.
+echo.
+
+:: Verifica se o script esta rodando como administrador
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ERRO] Este script precisa ser executado como Administrador.
+    pause
+    goto menu
+)
+
+echo [INFO] Interfaces de rede ativas:
+echo.
+netsh interface show interface | find "Conectado"
+echo.
+
+set /p "iface=Digite o nome da interface que deseja otimizar (ex: Ethernet ou Wi-Fi): "
+if not defined iface (
+    echo [ERRO] Nome da interface nao pode ser vazio.
+    pause
+    goto dns_optimization
+)
+
+echo.
+echo Escolha o servidor DNS que deseja usar:
+echo [1] Cloudflare (1.1.1.1, 1.0.0.1) - Foco em velocidade e privacidade.
+echo [2] Google (8.8.8.8, 8.8.4.4) - Rapido e confiavel.
+echo [3] Automatico (DHCP) - Reverter para o padrao do provedor.
+echo.
+set /p "dns_choice=Digite sua escolha (1, 2 ou 3): "
+
+if "%dns_choice%"=="1" (
+    echo [INFO] Configurando DNS da Cloudflare para "%iface%"...
+    netsh interface ipv4 set dns name="%iface%" static 1.1.1.1
+    netsh interface ipv4 add dns name="%iface%" 1.0.0.1 index=2
+) else if "%dns_choice%"=="2" (
+    echo [INFO] Configurando DNS do Google para "%iface%"...
+    netsh interface ipv4 set dns name="%iface%" static 8.8.8.8
+    netsh interface ipv4 add dns name="%iface%" 8.8.4.4 index=2
+) else if "%dns_choice%"=="3" (
+    echo [INFO] Revertendo DNS para Automatico (DHCP) em "%iface%"...
+    netsh interface ipv4 set dns name="%iface%" dhcp
+) else (
+    echo [ERRO] Opcao invalida.
+    pause
+    goto dns_optimization
+)
+
+echo.
+echo [INFO] Limpando o cache de DNS para aplicar as alteracoes...
+ipconfig /flushdns
+echo.
+echo =================================================================
+echo =                Configuracao de DNS aplicada!                  =
 echo =================================================================
 pause
 goto menu
@@ -1742,6 +1812,58 @@ reg delete "HKLM\Software\Policies" /f
 reg delete "HKLM\Software\WOW6432Node\Microsoft\Policies" /f
 
 echo Bugs arrumados!
+pause
+goto menu
+
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:internet_optimizations
+cls
+echo =================================================================
+echo =        OTIMIZANDO CONFIGURACOES DE REDE E INTERNET            =
+echo =================================================================
+echo.
+
+:: Verifica se o script esta rodando como administrador
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [ERRO] Este script precisa ser executado como Administrador.
+    pause
+    goto menu
+)
+
+echo [INFO] Aplicando otimizacoes de rede para menor latencia e maior velocidade...
+echo.
+
+echo [1/5] Limpando cache de DNS...
+ipconfig /flushdns
+echo.
+
+echo [2/5] Resetando catalogo Winsock...
+netsh winsock reset
+echo.
+
+echo [3/5] Resetando a pilha TCP/IP...
+netsh int ip reset
+echo.
+
+echo [4/5] Otimizando parametros TCP/IP via Registro...
+:: Desabilita o Nagle's Algorithm para menor latencia (bom para jogos)
+for /f "tokens=*" %%a in ('reg query "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces"') do (
+    reg add "%%a" /v "TcpAckFrequency" /t REG_DWORD /d 1 /f >nul 2>&1
+    reg add "%%a" /v "TCPNoDelay" /t REG_DWORD /d 1 /f >nul 2>&1
+)
+echo  - TCPNoDelay e TcpAckFrequency aplicados para baixa latencia.
+
+echo [5/5] Ajustando o Auto-Tuning e ECN...
+netsh int tcp set global autotuninglevel=normal
+netsh int tcp set global ecncapability=enabled
+echo  - Auto-Tuning e ECN configurados para performance.
+echo.
+echo =================================================================
+echo =      Otimizacoes de rede aplicadas com sucesso!               =
+echo = [AVISO] E essencial reiniciar o computador para que todas as   =
+echo =         alteracoes tenham efeito.                             =
+echo =================================================================
 pause
 goto menu
 
