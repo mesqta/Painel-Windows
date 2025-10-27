@@ -235,6 +235,10 @@ del /s /f /q %SystemRoot%\Panther\*.* >nul 2>&1
 del /s /f /q %SystemRoot%\Minidump\*.* >nul 2>&1
 del /s /f /q %SystemRoot%\inf\*.log >nul 2>&1
 
+echo [INFO] Limpando arquivos temporarios...
+del /s /f /q "%temp%\*.*" >nul 2>&1
+del /s /f /q "%SystemRoot%\Temp\*.*" >nul 2>&1
+
 echo [INFO] Limpando caches do sistema e de aplicativos...
 for %%D in (
     "%SystemRoot%\Temp"
@@ -267,6 +271,11 @@ for %%D in (
     "%LOCALAPPDATA%\EpicGamesLauncher\Saved\cache"
     "%LOCALAPPDATA%\Opera Software\Opera Stable\Cache"
     "%LOCALAPPDATA%\BraveSoftware\Brave-Browser\User Data\Default\Cache"
+    "%SystemRoot%\LiveKernelReports"
+    "%LOCALAPPDATA%\CrashDumps"
+    "%ProgramData%\NVIDIA Corporation\Installer2"
+    "%SystemDrive%\NVIDIA"
+    "%SystemDrive%\AMD"
 ) do (
     if exist "%%~D" (
         echo Limpando: %%~D
