@@ -23,6 +23,7 @@ echo   [10] Reparar Componentes do Windows Update
 echo   [11] Reativar Notificacoes do Sistema
 echo   [12] Otimizacoes de Rede e Internet (Latencia, Velocidade)
 echo   [13] Otimizar DNS (Acelerar Navegacao)
+echo   [14] Desativar Servicos
 echo.
 echo   [S] Sair
 echo.
@@ -41,6 +42,7 @@ if "%choice%"=="10" goto arrumar_bugs_windows
 if "%choice%"=="11" goto ativar_notificacoes
 if "%choice%"=="12" goto internet_optimizations
 if "%choice%"=="13" goto dns_optimization
+if "%choice%"=="14" goto desativar_servicos
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 
