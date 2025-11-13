@@ -228,10 +228,14 @@ echo [INFO] Limpando logs de eventos do Windows...
 for /F "tokens=*" %%G in ('wevtutil.exe el') DO (wevtutil.exe cl "%%G" >nul 2>&1)
 
 echo [INFO] Limpando Lixeira de todos os usuarios...
-rd /s /q %SystemDrive%\$Recycle.bin >nul 2>&1
+if exist "%SystemDrive%\$Recycle.bin" (
+    rd /s /q "%SystemDrive%\$Recycle.bin" >nul 2>&1
+    mkdir "%SystemDrive%\$Recycle.bin" >nul 2>&1
+)
 
 echo [INFO] Limpando arquivos de log e despejos de memoria...
 del /s /f /q %SystemRoot%\*.log >nul 2>&1
+del /s /f /q %SystemRoot%\MEMORY.DMP >nul 2>&1
 del /s /f /q %SystemRoot%\Logs\*.* >nul 2>&1
 del /s /f /q %SystemRoot%\Panther\*.* >nul 2>&1
 del /s /f /q %SystemRoot%\Minidump\*.* >nul 2>&1
@@ -275,6 +279,11 @@ for %%D in (
     "%LOCALAPPDATA%\BraveSoftware\Brave-Browser\User Data\Default\Cache"
     "%SystemRoot%\LiveKernelReports"
     "%LOCALAPPDATA%\CrashDumps"
+    "%LOCALAPPDATA%\NVIDIA\DXCache"
+    "%LOCALAPPDATA%\NVIDIA\GLCache"
+    "%LOCALAPPDATA%\AMD\DxCache"
+    "%windir%\System32\wbem\Logs"
+    "%windir%\System32\LogFiles"
     "%ProgramData%\NVIDIA Corporation\Installer2"
     "%SystemDrive%\NVIDIA"
     "%SystemDrive%\AMD"
@@ -297,6 +306,9 @@ mkdir "%SystemRoot%\SoftwareDistribution" >nul 2>&1
 
 echo [INFO] Limpando relatorios de erro do Windows...
 del /s /f /q %ProgramData%\Microsoft\Windows\WER\*.* >nul 2>&1
+
+echo [INFO] Otimizando unidades de armazenamento (SSD TRIM)...
+defrag /C /O >nul 2>&1
 
 echo.
 echo =================================================================
