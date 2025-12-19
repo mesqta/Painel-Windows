@@ -2,55 +2,92 @@
 :menu
 cls
 echo Escolha uma opcao:
-echo [0] Fechar Programa
 echo [1] Desativar Servicos
-echo [2] Limpar Arquivos
-echo [3] Apply General Regsitry and windows Optimizations
-echo [4] Power Optimizations
-echo [5] USB Optimizations
-echo [6] System Debloat
-echo [7] Storage Optimizations
+echo [2] General System Optimizations
+echo [3] Power Optimizations
+echo [4] USB Optimizations
+echo [5] System Debloat
+echo [6] Storage Optimizations
+echo [7] Uninstall Useless Apps
+echo [8] Disable GameDvr
+echo [9] Set memoryusage
+echo [10] Activate processor performance boost mode
+echo [11] Reduce processes
+echo [12] Disable Settings w11
+echo [13] Mouse Settings
+echo [14] Otimizacoes Extras
+echo [15] Otimizar para Discord + Jogos
+echo [16] Remover Travamentos e Lentidoes
+echo [17] Resposta Instantanea ao Abrir Apps e Janelas
+echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+echo [S] Fechar Programa
+echo [L] Limpar Arquivos
+echo [E] Ativar Notificacoes
+echo [F] Arrumar Bugs do Windows
 echo.
 set /p choice=Digite o numero da opcao e pressione Enter: 
-
-if "%choice%"=="0" goto fechar_programa
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if "%choice%"=="1" goto desativar_servicos
-if "%choice%"=="2" goto limpar_arquivos
-if "%choice%"=="3" goto aplicar_general
-if "%choice%"=="4" goto power_optimizations
-if "%choice%"=="5" goto usb_optimizations
-if "%choice%"=="6" goto system_debloat
-if "%choice%"=="7" goto storage_optimizations
+if "%choice%"=="2" goto general_system_optimizations
+if "%choice%"=="3" goto power_optimizations
+if "%choice%"=="4" goto usb_optimizations
+if "%choice%"=="5" goto system_debloat
+if "%choice%"=="6" goto storage_optimizations
+if "%choice%"=="7" goto uninstall_useless_apps
+if "%choice%"=="8" goto disable_game_dvr
+if "%choice%"=="9" goto set_memory_usage
+if "%choice%"=="10" goto activate_processor_performance_boost_mode
+if "%choice%"=="11" goto reduce_processes
+if "%choice%"=="12" goto disable_settings
+if "%choice%"=="13" goto mouse_settings
+if "%choice%"=="14" goto extra_optimizations
+if "%choice%"=="15" goto otimizar_discord_jogos
+if "%choice%"=="16" goto remover_travamentos
+if "%choice%"=="17" goto aumentar_resposta_apps
+if "%choice%"=="18" goto limpar_lixeira
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+if /I "%choice%"=="S" goto fechar_programa
+if /I "%choice%"=="L" goto limpar_arquivos
+if /I "%choice%"=="E" goto ativar_notificacoes
+if /I "%choice%"=="F" goto arrumar_bugs_windows
 
-echo Opcao invalida. Por favor, escolha de 0 a 9.
+echo Opcao invalida. Por favor, escolha de 0 a 7.
 pause
 goto menu
-
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
-
 :fechar_programa
 cls
 echo Fechando o programa...
 pause
 exit
-
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:limpar_lixeira
+cls
+echo Limpando a Lixeira...
 
+:: Remove todos os arquivos da Lixeira permanentemente
+rd /s /q C:\$Recycle.bin
+
+:: Recria a pasta da Lixeira para evitar erros do sistema
+md C:\$Recycle.bin
+
+echo Lixeira limpa com sucesso! Nenhum arquivo residual permanece no sistema.
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :desativar_servicos
 cls
 echo Desabilitando o servico SysMain (SuperFetch) e outros servicos...
 pause
 
-:: Desabilitar o servico SysMain
 sc config SysMain start= disabled
 net stop SysMain
 
-:: Desabilitar outros servicos
 sc config WSearch start= disabled
 net stop WSearch
 
-sc config TapSrv start= disabled
-net stop TapSrv
+sc config TapiSrv start= disabled
+net stop TapiSrv
 
 sc config Spooler start= disabled
 net stop Spooler
@@ -120,6 +157,10 @@ net stop bthserv
 
 sc config InventorySvc start= disabled
 net stop InventorySvc
+
+:: Lista de processos para encerrar
+call :killprocess msedge.exe
+call :killprocess onedrive.exe
 
 :: Desabilitar recursos de economia de energia
 echo %w% - Disabling Power Saving Features %b%
@@ -361,10 +402,6 @@ echo %w% - Disabling Power Telemetry %b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "EnergyEstimationEnabled" /t REG_DWORD /d "0" /f
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "EnergyEstimationDisabled" /t REG_DWORD /d "1" /f
 
-echo %w% - Deleting Useless Power Plans %b%
-powercfg /delete scheme_balanced
-powercfg /delete scheme_max
-
 echo %w% - Disabling Hibernation and Fast Startup %b%
 powercfg /h off
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v "HiberbootEnabled" /t REG_DWORD /d "0" /f
@@ -375,12 +412,15 @@ Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "PerfTimeCheckInter
 echo Servicos e tarefas agendadas desabilitados com sucesso.
 pause
 goto menu
-
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
-
 :limpar_arquivos
 cls
 echo Limpando arquivos de log, arquivos temp, caches e lixo do computador...
+
+:: Limpa a memória RAM
+echo Liberando memória RAM...
+echo.> %temp%\emptyfile
+del %temp%\emptyfile
 
 :: Limpeza de arquivos de log e temporarios do sistema
 del *.log /a /s /q /f
@@ -389,13 +429,6 @@ del /s /f /q C:\Windows\Prefetch\*.*
 del /s /f /q %temp%\*.*
 del /s /f /q C:\Windows\Logs\*.*
 del /s /f /q C:\Windows\Minidump\*.*
-
-:: Limpeza de caches de navegadores (Chrome, Firefox, Edge)
-del /s /f /q "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache\*.*"
-del /s /f /q "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Media Cache\*.*"
-del /s /f /q "%LOCALAPPDATA%\Mozilla\Firefox\Profiles\*\cache2\*.*"
-del /s /f /q "%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Cache\*.*"
-del /s /f /q "%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Media Cache\*.*"
 
 :: Limpeza de rastros de navegacao (historico, cookies, etc.)
 RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 8
@@ -427,6 +460,20 @@ net stop UsoSvc
 rd /s /q C:\Windows\SoftwareDistribution
 md C:\Windows\SoftwareDistribution
 
+:: Limpeza da pasta Downloads
+echo Limpando a pasta Downloads...
+del /s /f /q "%USERPROFILE%\Downloads\*.*"
+rd /s /q "%USERPROFILE%\Downloads"
+md "%USERPROFILE%\Downloads"
+echo Pasta Downloads limpa.
+
+:: Limpeza da pasta Imagens
+echo Limpando a pasta Imagens...
+del /s /f /q "%USERPROFILE%\Pictures\*.*"
+rd /s /q "%USERPROFILE%\Pictures"
+md "%USERPROFILE%\Pictures"
+echo Pasta Imagens limpa.
+
 :: Limpeza de pastas temporárias
 RD /S /Q %temp%
 MKDIR %temp%
@@ -455,15 +502,108 @@ echo %w% -  Cleaning Useless Device Data...%b%
 chcp 437 > nul
 @echo on
 POWERSHELL "$Devices = Get-PnpDevice | ? Status -eq Unknown;foreach ($Device in $Devices) { &\"pnputil\" /remove-device $Device.InstanceId }"
-@echo off
 
+del %temp%\*.* /s /q
+del C:\Windows\temp\*.*/s/q
+del C:\Windows\prefetch\*.*/s/q
+/s /f /q c:\windows\temp\*.*
+rd /s /q c:\windows\temp
+md c:\windows\temp
+del /s /f /q C:\WINDOWS\Prefetch
+del /s /f /q %temp%\*.*
+rd /s /q %temp%
+md %temp%
+deltree /y c:\windows\tempor~1
+deltree /y c:\windows\temp
+deltree /y c:\windows\tmp
+deltree /y c:\windows\ff*.tmp
+deltree /y c:\windows\history
+deltree /y c:\windows\cookies
+deltree /y c:\windows\recent
+deltree /y c:\windows\spool\printers
+del c:\WIN386.SWP
+cls
+
+FOR /F "tokens=1, 2 * " %%V IN ('bcdedit') DO SET adminTest=%%V
+IF (%adminTest%)==(Access) goto noAdmin
+
+for /F "tokens=*" %%G in ('wevtutil.exe el') DO (
+    echo Limpando logs de eventos: %%G
+    wevtutil.exe cl %%G
+)
+
+del /s /f /q "%USERPROFILE%\Local Settings\History"\*.*
+rd /s /q "%USERPROFILE%\Local Settings\History"
+md "%USERPROFILE%\Local Settings\History"
+
+del /s /f /q "%USERPROFILE%\Local Settings\Temporary Internet Files"\*.*
+rd /s /q "%USERPROFILE%\Local Settings\Temporary Internet Files"
+md "%USERPROFILE%\Local Settings\Temporary Internet Files"
+
+del /s /f /q "%USERPROFILE%\Local Settings\Temp"\*.*
+rd /s /q "%USERPROFILE%\Local Settings\Temp"
+md "%USERPROFILE%\Local Settings\Temp"
+
+del /s /f /q "%USERPROFILE%\Recent"\*.*
+rd /s /q "%USERPROFILE%\Recent"
+md "%USERPROFILE%\Recent"
+
+del /s /f /q "%USERPROFILE%\Cookies"\*.*
+rd /s /q "%USERPROFILE%\Cookies"
+md "%USERPROFILE%\Cookies"
+
+for /f %%a in ('wmic cpu get L2CacheSize ^| findstr /r "[0-9][0-9]"') do (
+    set /a l2c=%%a
+    set /a sum1=%%a
+)
+
+for /f %%a in ('wmic cpu get L3CacheSize ^| findstr /r "[0-9][0-9]"') do (
+    set /a l3c=%%a
+    set /a sum2=%%a
+)
+
+RD /S /Q %temp%
+MKDIR %temp%
+takeown /f "%temp%" /r /d y
+takeown /f "C:\Windows\Temp" /r /d y
+RD /S /Q C:\Windows\Temp
+MKDIR C:\Windows\Temp
+takeown /f "C:\Windows\Temp" /r /d y
+takeown /f %temp% /r /d y
+takeown /A /R /D Y /F C:\Users\%USERNAME%\AppData\Local\Temp\
+icacls C:\Users\%USERNAME%\AppData\Local\Temp\ /grant administradores:F /T /C
+rmdir /q /s C:\Users\%USERNAME%\AppData\Local\Temp\
+md C:\Users\%USERNAME%\AppData\Local\Temp\
+takeown /A /R /D Y /F C:\windows\temp
+icacls C:\windows\temp /grant administradores:F /T /C
+rmdir /q /s c:\windows\temp
+md c:\windows\temp
+cls
+
+del c:\windows\logs\cbs\*.log
+del C:\Windows\Logs\MoSetup\*.log
+del C:\Windows\Panther\*.log /s /q
+del C:\Windows\inf\*.log /s /q
+del C:\Windows\logs\*.log /s /q
+del C:\Windows\SoftwareDistribution\*.log /s /q
+del C:\Windows\Microsoft.NET\*.log /s /q
+del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\WebCache\*.log /s /q
+del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\SettingSync\*.log /s /q
+del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\Explorer\ThumbCacheToDelete\*.tmp /s /q
+del C:\Users\%USERNAME%\AppData\Local\Microsoft\"Terminal Server Client"\Cache\*.bin /s /q
+rmdir /q /s C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\INetCache\
+
+rd /s /q C:\Windows\SoftwareDistribution
+md C:\Windows\SoftwareDistribution
+
+cd/
+del *.log /a /s /q /f
+@echo off
 echo Limpeza concluida.
 pause
 goto menu
-
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
-
-:aplicar_general
+:general_system_optimizations
 cls
 echo %w% - Disabling Dynamic Tick%b%
 bcdedit /set Disabledynamictick yes >nul 2>&1
@@ -479,6 +619,7 @@ fsutil behavior set mftzone 4 >nul 2>&1
 fsutil behavior set Disablinglastaccess 1 >nul 2>&1
 fsutil behavior set Disabledeletenotify 1 >nul 2>&1
 fsutil behavior set encryptpagingfile 0 >nul 2>&1
+
 
 echo %w% - MMCSS Priority For Low Latency%b%
 Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /v "Affinity" /t REG_DWORD /d "0" /f
@@ -511,7 +652,6 @@ Reg.exe add "HKCU\Control Panel\Desktop" /v "HungAppTimeout" /t REG_SZ /d "1000"
 Reg.exe add "HKCU\Control Panel\Desktop" /v "WaitToKillAppTimeout" /t REG_SZ /d "1000" /f
 Reg.exe add "HKCU\Control Panel\Desktop" /v "LowLevelHooksTimeout" /t REG_SZ /d "1000" /f
 Reg.exe add "HKCU\Control Panel\Desktop" /v "MenuShowDelay" /t REG_SZ /d "0" /f
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control" /v "WaitToKillServiceTimeout" /t REG_SZ /d "2000" /f
 
 echo %w% - Setting IO Time Stamp%b%
 Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Reliability" /v "TimeStampInterval" /t REG_DWORD /d "1" /f 
@@ -526,7 +666,6 @@ bcdedit /set configaccesspolicy Default
 bcdedit /set MSI Default
 bcdedit /set usephysicaldestination No
 bcdedit /set usefirmwarepcisettings No
-
 
 echo %w% - Setting Latency Tolerance%b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\DXGKrnl" /v "MonitorLatencyTolerance" /t REG_DWORD /d "1" /f 
@@ -704,25 +843,10 @@ schtasks /change /tn "\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDi
 schtasks /end /tn "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem"
 schtasks /change /tn "\Microsoft\Windows\Power Efficiency Diagnostics\AnalyzeSystem" /Disable
 
-echo %w% - Setting FSE Behavior Mode %b%
-Reg.exe add "HKCU\SYSTEM\GameConfigStore" /v "GameDVR_DSEBehavior" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\SYSTEM\GameConfigStore" /v "GameDVR_FSEBehaviorMode" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\SYSTEM\GameConfigStore" /v "GameDVR_EFSEFeatureFlags" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\SYSTEM\GameConfigStore" /v "GameDVR_DXGIHonorFSEWindowsCompatible" /t REG_DWORD /d "0" /f
-Reg.exe add "HKCU\SYSTEM\GameConfigStore" /v "GameDVR_HonorUserFSEBehaviorMode" /t REG_DWORD /d "1" /f
-
-echo %w% - Disabling VRR Optimizations %b%
-Reg.exe add "HKCU\SOFTWARE\Microsoft\DirectX\UserGpuPreferences" /v "DirectXUserGlobalSettings" /t REG_SZ /d "VRROptimizeEnable=0;SwapEffectUpgradeEnable=1;" /f
-
-echo %w% - Delete Overlay %b%
-reg delete "HKLM\SOFTWARE\Microsoft\Windows\Dwm" /v "OverlayTestMode" /f
-
-echo %w% - Enabling Game Mode %b%
-Reg.exe add "HKCU\SOFTWARE\Microsoft\GameBar" /v "AllowAutoGameMode" /t REG_DWORD /d "1" /f
-Reg.exe add "HKCU\SOFTWARE\Microsoft\GameBar" /v "AutoGameModeEnabled" /t REG_DWORD /d "1" /f
+echo Otimizando memória RAM...
+wmic OS get FreePhysicalMemory /Value
 pause
 goto menu
-
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :power_optimizations
 cls
@@ -784,7 +908,9 @@ Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Enum\%%i\Device Parameters" /v "Enabl
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Enum\%%i\Device Parameters" /v "EnhancedPowerManagementEnabled" /t REG_DWORD /d "0" /f 
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Enum\%%i\Device Parameters" /v "SelectiveSuspendEnabled" /t REG_DWORD /d "0" /f 
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Enum\%%i\Device Parameters" /v "SelectiveSuspendOn" /t REG_DWORD /d "0" /f 
+
 )
+
 
 echo %w% - Thread Priority%b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\usbxhci\Parameters" /v "ThreadPriority" /t REG_DWORD /d "31" /f
@@ -794,6 +920,7 @@ Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\NDIS\Parameters" /v "ThreadP
 
 echo %w% - Disabling USB Selective Suspend%b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\USB" /v "DisableSelectiveSuspend" /t REG_DWORD /d "1" /f 
+
 
 echo %w% - Enabing MSI mode on usb%b%
 for /f %%i in ('wmic path Win32_USBController get PNPDeviceID') do set "str=%%i" & (
@@ -968,6 +1095,7 @@ Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Biometrics" /v "Enabled" /t REG_DW
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\dmwappushservice" /v "Start" /t REG_DWORD /d "4" /f
 Reg.exe add "HKCU\Control Panel\International\User Profile" /v "HttpAcceptLanguageOptOut" /t REG_DWORD /d "1" /f
 
+cls
 echo %w% - Disabling Office Telemetry  %b%
 Reg.exe add "HKCU\Software\Microsoft\Office\Common\ClientTelemetry" /v "DisableTelemetry" /t REG_DWORD /d "1" /f
 Reg.exe add "HKCU\Software\Microsoft\Office\16.0\Common" /v "sendcustomerdata" /t REG_DWORD /d "0" /f
@@ -1037,6 +1165,37 @@ sc config Spooler start= disabled
 schtasks /Change /TN "Microsoft\Windows\Printing\EduPrintProv" /Disable 
 schtasks /Change /TN "Microsoft\Windows\Printing\PrinterCleanupTask" /Disable 
 
+echo %w% - Disabling VirtualizationBasedSecurity%b%
+Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" /v "EnablingVirtualizationBasedSecurity" /t REG_DWORD /d "0" /f 
+echo %w% - Disabling HVCIMATRequired%b%
+Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" /v "HVCIMATRequired" /t REG_DWORD /d "0" /f 
+echo %w% - Disabling ExceptionChainValidation%b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v "DisableExceptionChainValidation" /t REG_DWORD /d "1" /f 
+echo %w% - Disabling Sehop%b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v "KernelSEHOPEnabled" /t REG_DWORD /d "0" /f 
+echo %w% - Disabling CFG%b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "EnablingCfg" /t REG_DWORD /d "0" /f 
+echo %w% - Disabling Protection Mode%b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager" /v "ProtectionMode" /t REG_DWORD /d "0" /f 
+echo %w% - Disabling Spectre And Meltdown%b%
+
+if "%ProcessorManufacturer%" EQU "AuthenticAMD" (
+    Reg.exe add "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management" /v "FeatureSettingsOverride" /t REG_DWORD /d "2" /f 
+	Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "FeatureSettingsOverrideMask" /t REG_DWORD /d "2" /f
+) else (
+    Reg.exe add "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management" /v "FeatureSettingsOverride" /t REG_DWORD /d "3" /f 
+	Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "FeatureSettingsOverrideMask" /t REG_DWORD /d "3" /f
+)
+
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "FeatureSettings" /t REG_DWORD /d "1" /f 
+echo %w% - Disabling Address Space Layout Randomization%b%
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "MoveImages" /t REG_DWORD /d "0" /f 
+
+echo %w%- Disabling windows smart screen %b%
+Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v "EnablingSmartScreen" /t REG_DWORD /d "0" /f 
+Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "SmartScreenEnabled" /t REG_SZ /d "Off" /f 
+Reg.exe add "HKU\!USER_SID!\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" /v "EnablingWebContentEvaluation" /t REG_DWORD /d "0" /f
+
 echo %w% - Disable Diagnostics %b%
 sc config DPS start= auto
 sc config DiagTrack start= demand 
@@ -1064,15 +1223,23 @@ Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" /
 Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" /v "LoggingDisabled" /t REG_DWORD /d "1" /f 
 Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\PCHealth\ErrorReporting" /v "DoReport" /t REG_DWORD /d "0" /f 
 Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\Windows Error Reporting" /v "Disabled" /t REG_DWORD /d "1" /f
+
+echo %w% - Disabling Game Mode %b%
+Reg.exe add "HKCU\SOFTWARE\Microsoft\GameBar" /v "AllowAutoGameMode" /t REG_DWORD /d "0" /f
+Reg.exe add "HKCU\SOFTWARE\Microsoft\GameBar" /v "AutoGameModeEnabled" /t REG_DWORD /d "0" /f
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :storage_optimizations
 cls
+start dfrgui.exe
+pause
+
 echo %w% - Enabling User Write Cache %b%
 For /f "Delims=" %%k in ('Reg.exe Query HKLM\SYSTEM\CurrentControlSet\Enum /f "{4d36e967-e325-11ce-bfc1-08002be10318}" /d /s^|Find "HKEY"') do (
 Reg.exe add "%%k\Device Parameters\Disk" /v UserWriteCacheSetting /t REG_DWORD /d 1 /f
 Reg.exe add "%%k\Device Parameters\Disk" /v CacheIsPowerProtected /t REG_DWORD /d 1 /f
+)
 
 echo %w% - Disabling SSD Power Savings %b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\Storage\SD\IdleState\1" /v "IdleExitEnergyMicroJoules" /t REG_DWORD /d "0" /f 
@@ -1090,7 +1257,7 @@ Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\Storag
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\Storage\SSD\IdleState\3" /v "IdleExitEnergyMicroJoules" /t REG_DWORD /d "0" /f 
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\Storage\SSD\IdleState\3" /v "IdleExitLatencyMs" /t REG_DWORD /d "0" /f 
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\Storage\SSD\IdleState\3" /v "IdlePowerMw" /t REG_DWORD /d "0" /f 
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\Storage\SSD\IdleState\3" /v "IdleTimeLengthMs" /t REG_DWORD /d "4294967295" /f 
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\EnergyEstimation\Storage\SSD\IdleState\3" /v "IdleTimeLengthMs" /t REG_DWORD /d "4294967295" /f
 
 echo %w% - Applying NVME Tweaks%b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "QueueDepth" /t REG_DWORD /d "64" /f
@@ -1111,3 +1278,852 @@ Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\stornvme\Parameters" /v "Arb
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:uninstall_useless_apps
+cls
+chcp 437 >nul
+CLS
+echo.
+echo.
+echo [                             0%                            ]
+echo.
+echo %w%- Uninstalling BingWeather (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.BingWeather* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [==                           3.5%                          ]
+echo.
+echo %w%- Uninstalling GetHelp  (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.GetHelp* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [====                         7.0%                          ]
+echo.
+echo %w%- Uninstalling Getstarted  (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.Getstarted* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=====                        10.5%                         ]
+echo.
+echo %w%- Uninstalling Messaging  (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.Messaging* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [======                       14.5%                         ]
+echo.
+echo %w%- Uninstalling Messaging  (Removing Preinstalled Apps) %b%
+Powershell.exe -command "& {Get-AppxPackage *Microsoft.Microsoft3DViewer* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [========                     18.0%                         ]
+echo.
+echo %w%- Uninstalling MicrosoftSolitaireCollection (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.MicrosoftSolitaireCollection* | Remove-AppxPackage}
+CLS 
+
+echo.
+echo.
+echo [==========                   21.5%                         ]
+echo.
+echo %w%- Uninstalling MicrosoftStickyNotes (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.MicrosoftStickyNotes* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [============                 24.5%                         ]
+echo.
+echo %w%- Uninstalling MixedReality.Portal (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.MixedReality.Portal* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [==============               27.0%                         ]
+echo.
+echo %w%- Uninstalling OneConnect (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.OneConnect* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [===============              28.5%                         ]
+echo.
+echo %w%- Uninstalling People (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.People* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [==================           30.5%                         ]
+echo.
+echo %w%- Uninstalling Print3D (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.Print3D* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [===================           32.0%                        ]
+echo.
+echo %w%- Uninstalling SkypeApp (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.SkypeApp* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [====================         34.0%                         ]
+echo.
+echo %w%- Uninstalling WindowsAlarms (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsAlarms* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=====================        35.2%                         ]
+echo.
+echo %w%- Uninstalling WindowsCamera (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsCamera* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [======================       37.5%                         ]
+echo.
+echo %w%- Uninstalling windowscommunicationsapps (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *microsoft.windowscommunicationsapps* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=======================      38.8%                         ]
+echo.
+echo %w%- Uninstalling WindowsMaps (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsMaps* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [========================     40.0%                         ]
+echo.
+echo %w%- Uninstalling WindowsFeedbackHub (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsFeedbackHub* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=========================    42.2%                         ]
+echo.
+echo %w%- Uninstalling WindowsSoundRecorder (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WindowsSoundRecorder* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=========================    44.5%                         ]
+echo.
+echo %w%- Uninstalling YourPhone (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.YourPhone* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [===========================  47.0%                         ]
+echo.
+echo %w%- Uninstalling ZuneMusic (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.ZuneMusic* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [===========================  49.0%                         ]
+echo.
+echo %w%- Uninstalling HEIFImageExtension (Removing Preinstalled Apps) %b%
+
+PowerShell -command "& {Get-AppxPackage *Microsoft.HEIFImageExtension* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=============================51.0%                         ]
+echo.
+echo %w%- Uninstalling WebMediaExtensions (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WebMediaExtensions* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=============================53.5%==                       ]
+echo.
+echo %w%- Uninstalling WebpImageExtension (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.WebpImageExtension* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=============================56.7%====                     ]
+echo.
+echo %w%- Uninstalling 3dBuilder (Removing Preinstalled Apps) %b%
+PowerShell -command "& {Get-AppxPackage *Microsoft.3dBuilder* | Remove-AppxPackage}
+CLS
+
+echo.
+echo.
+echo [=============================59.5%======                   ]
+echo.
+echo %w%- Uninstalling bing (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *bing* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================62.0%========                 ]
+echo.
+echo %w%- Uninstalling bingfinance (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *bingfinance* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================65.5%==========               ]
+echo.
+echo %w%- Uninstalling bingsports (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *bingsports* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================69.0%============             ]
+echo.
+echo %w%- Uninstalling CommsPhone (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *CommsPhone* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================75.0 %=============           ]
+echo.
+echo %w%- Uninstalling Drawboard PDF (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *Drawboard PDF* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================79.5%%===============         ]
+echo.
+echo %w%- Uninstalling Sway (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *Sway* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================85.0%%===================     ]
+echo.
+echo %w%- Uninstalling WindowsAlarms (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *WindowsAlarms* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================90.5%%=====================   ]
+echo.
+echo %w%- Uninstalling WindowsPhone (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *WindowsPhone* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================93.5%%=====================   ]
+echo.
+echo %w%- Uninstalling WindowsPhone (Removing Preinstalled Apps) %b%
+PowerShell -Command "Get-AppxPackage -allusers *WindowsPhone* | Remove-AppxPackage"
+CLS
+
+echo.
+echo.
+echo [=============================100.0%%=======================]
+echo %w%- Finished! %b%
+chcp 65001 >nul
+pause
+
+
+echo %w% - Disabling Microsoft edging  %b%
+taskkill /f /im msedge.exe >nul 2>&1
+taskkill /f /im msedge.exe /fi "IMAGENAME eq msedge.exe" >nul 2>&1
+taskkill /f /im msedge.exe /fi "IMAGENAME eq msedge.exe" >nul 2>&1
+echo Deleting Edge Directories.
+rd /s /q "C:\Program Files (x86)\Microsoft\Edge" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\EdgeCore" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\EdgeUpdate" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\EdgeWebView" >nul 2>&1
+rd /s /q "C:\Program Files (x86)\Microsoft\Temp" >nul 2>&1
+echo Deleting Microsoft Edge Shortcuts.
+del "C:\Users\Public\Desktop\Microsoft Edge.lnk" >nul 2>&1
+del "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Microsoft Edge.lnk" >nul 2>&1
+del "%APPDATA%\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Microsoft Edge.lnk" >nul 2>&1
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:disable_game_dvr
+cls
+echo Desativando a captura de jogos (Game DVR)...
+
+:: Define o caminho da chave no Registro
+set regPath=HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\GameDVR
+
+:: Define o valor AppCaptureEnabled como 0 (desativado)
+reg add "%regPath%" /v AppCaptureEnabled /t REG_DWORD /d 0 /f
+
+:: Verifica se o comando foi executado com sucesso
+if %errorlevel% equ 0 (
+    echo Captura de jogos desativada com sucesso!
+) else (
+    echo Ocorreu um erro ao tentar desativar a captura de jogos.
+)
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:set_memory_usage
+cls
+echo Configurando o uso de memória do sistema de arquivos...
+fsutil behavior set memoryusage 2
+if %errorlevel% equ 0 (
+    echo Configuração aplicada com sucesso!
+) else (
+    echo Ocorreu um erro ao aplicar a configuração.
+)
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:activate_processor_performance_boost_mode
+cls
+REM
+set "regKey=HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\be337238-0d82-4146-a960-4f3749d470c7"
+
+REM
+set "valueName=Attributes"
+set "valueData=2"
+
+REM
+reg add "%regKey%" /v "%valueName%" /t REG_DWORD /d %valueData% /f
+
+REM
+if %errorlevel% equ 0 (
+    echo Valor de "%valueName%" alterado para %valueData% com sucesso!
+) else (
+    echo Ocorreu um erro ao tentar modificar o valor.
+)
+
+REM Ativa o plano de energia "Alto desempenho máximo"
+powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
+powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61
+
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:reduce_processes
+cls
+:: Verifica se o script está rodando como administrador
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo Por favor, execute este script como Administrador.
+    pause
+    exit /b
+)
+
+:: Define a chave do registro que será modificada
+set "regKey=HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control"
+
+:: Define os valores e dados que serão atribuídos
+set "valueName1=SvcHostSplitThresholdInKB"
+set "valueData1=67108864"  :: Valor decimal de 0x04000000 (64MB)
+
+set "valueName2=WaitToKillServiceTimeout"
+set "valueData2=2000"  :: Tempo de espera em milissegundos
+
+:: Modifica o valor de SvcHostSplitThresholdInKB no registro (em decimal)
+reg add "%regKey%" /v "%valueName1%" /t REG_DWORD /d %valueData1% /f
+if %errorlevel% equ 0 (
+    echo Valor de "%valueName1%" alterado para %valueData1% com sucesso!
+) else (
+    echo ERRO ao modificar "%valueName1%". Verifique permissões!
+)
+
+:: Modifica o valor de WaitToKillServiceTimeout no registro
+reg add "%regKey%" /v "%valueName2%" /t REG_SZ /d "%valueData2%" /f
+if %errorlevel% equ 0 (
+    echo Valor de "%valueName2%" alterado para %valueData2% com sucesso!
+) else (
+    echo ERRO ao modificar "%valueName2%". Verifique permissões!
+)
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:disable_settings
+cls
+@echo off
+echo Desativando funções inúteis no Windows 11...
+echo.
+
+:: ==========================================
+:: Configurações gerais do sistema
+:: ==========================================
+
+:: Desativar transparência e efeitos visuais
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize' -Name 'EnableTransparency' -Value 0"
+echo Transparência desativada.
+
+:: Desativar animações
+powershell -command "Set-ItemProperty -Path 'HKCU:\Control Panel\Desktop\WindowMetrics' -Name 'MinAnimate' -Value 0"
+echo Animações desativadas.
+
+:: Desativar dicas, truques e sugestões do Windows
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager' -Name 'SubscribedContent-338389Enabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager' -Name 'SubscribedContent-310093Enabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager' -Name 'SubscribedContent-338388Enabled' -Value 0"
+echo Dicas e sugestões desativadas.
+
+:: Desativar notificações de boas-vindas
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager' -Name 'SubscribedContent-310093Enabled' -Value 0"
+echo Notificações de boas-vindas desativadas.
+
+:: Desativar sugestões de aplicativos no Menu Iniciar
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager' -Name 'SubscribedContent-338388Enabled' -Value 0"
+echo Sugestões de aplicativos desativadas.
+
+:: Desativar telemetria e coleta de dados
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection' -Name 'AllowTelemetry' -Value 0"
+echo Telemetria desativada.
+
+:: Desativar Cortana
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search' -Name 'AllowCortana' -Value 0"
+echo Cortana desativada.
+
+:: Desativar Bing no Menu Iniciar
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search' -Name 'BingSearchEnabled' -Value 0"
+echo Bing no Menu Iniciar desativado.
+
+:: Desativar notificações de segurança e manutenção
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance' -Name 'Enabled' -Value 0"
+echo Notificações de segurança e manutenção desativadas.
+
+:: Desativar histórico de atividades
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System' -Name 'EnableActivityFeed' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System' -Name 'PublishUserActivities' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System' -Name 'UploadUserActivities' -Value 0"
+echo Histórico de atividades desativado.
+
+:: Desativar sincronização de configurações entre dispositivos
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Personalization' -Name 'Enabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Accessibility' -Name 'Enabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Language' -Name 'Enabled' -Value 0"
+echo Sincronização de configurações desativada.
+
+:: Desativar multitarefa (desativar Snap Assist e sugestões de layout)
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'SnapAssist' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarMn' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name 'TaskbarDa' -Value 0"
+echo Multitarefa (Snap Assist e sugestões de layout) desativada.
+
+:: Desativar Narrador (Narrator)
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Narrator\NoRoam' -Name 'WinEnterLaunchEnabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Narrator\NoRoam' -Name 'NarratorStartingDialogShown' -Value 1"
+echo Narrador desativado.
+
+:: Desativar dicas de foco (Focus Assist)
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\$$windows.data.notifications.quiethourssettings\Current' -Name 'Data' -Value ([byte[]](0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))"
+echo Dicas de foco desativadas.
+
+:: Desativar notificações de jogos e Xbox
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' -Name 'AppCaptureEnabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' -Name 'AudioCaptureEnabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' -Name 'CursorCaptureEnabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\GameBar' -Name 'AllowAutoGameMode' -Value 0"
+echo Notificações de jogos e Xbox desativadas.
+
+:: ==========================================
+:: Sistema (adicional)
+:: ==========================================
+
+:: Desativar compartilhamento por proximidade
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CDP' -Name 'NearShareChannelEnabled' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CDP' -Name 'NearShareChannelUserPolicy' -Value 0"
+echo Compartilhamento por proximidade desativado.
+
+:: Desativar projeção para este computador
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Connect' -Name 'AllowProjectionToPC' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Connect' -Name 'RequirePinForPairing' -Value 1"
+echo Projeção para este computador desativada.
+
+:: Desativar recursos adicionais (opcional)
+powershell -command "Disable-WindowsOptionalFeature -Online -FeatureName 'WindowsMediaPlayer' -NoRestart"
+powershell -command "Disable-WindowsOptionalFeature -Online -FeatureName 'Printing-PrintToPDFServices-Features' -NoRestart"
+echo Recursos adicionais desativados.
+
+:: ==========================================
+:: Bluetooth e dispositivos
+:: ==========================================
+
+:: Desativar Bluetooth
+powershell -command "Disable-NetAdapterBinding -Name '*' -ComponentID 'ms_bthpan'"
+powershell -command "Disable-NetAdapterBinding -Name '*' -ComponentID 'ms_bthport'"
+echo Bluetooth desativado.
+
+:: Desativar descoberta de dispositivos
+powershell -command "Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\FDResPub' -Name 'Start' -Value 4"
+powershell -command "Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\SSDPSRV' -Name 'Start' -Value 4"
+echo Descoberta de dispositivos desativada.
+
+:: ==========================================
+:: Acessibilidade
+:: ==========================================
+
+:: Desativar Lupa
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\ScreenMagnifier' -Name 'MagnifierUI' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\ScreenMagnifier' -Name 'Magnification' -Value 0"
+echo Lupa desativada.
+
+:: Desativar filtros de cor
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\ColorFiltering' -Name 'Active' -Value 0"
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\ColorFiltering' -Name 'FilterType' -Value 0"
+echo Filtros de cor desativados.
+
+:: Desativar legendas
+powershell -command "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Accessibility' -Name 'ClosedCaptioning' -Value 0"
+echo Legendas desativadas.
+
+echo.
+echo Todas as funções inúteis foram desativadas!
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:mouse_settings
+cls
+
+:: Desativar a aceleracao do mouse (melhor para jogos e precisao)
+reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d "0" /f
+echo Aceleracao do mouse desativada.
+
+:: Ajustar o tempo de atraso do clique duplo (em milissegundos)
+set /p doubleClickSpeed="Digite o tempo de atraso para clique duplo (em ms, padrao 500): "
+if "%doubleClickSpeed%"=="" set doubleClickSpeed=500
+reg add "HKCU\Control Panel\Mouse" /v DoubleClickSpeed /t REG_SZ /d "%doubleClickSpeed%" /f
+echo Tempo de atraso do clique duplo ajustado para %doubleClickSpeed% ms.
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:extra_optimizations
+cls
+echo Aplicando otimizações extras do Windows 11 24H2...
+
+:: Desativar Widgets
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarDa /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Dsh" /v AllowNewsAndInterests /t REG_DWORD /d 0 /f
+echo Widgets desativados.
+
+:: Desativar Chat da barra de tarefas (Teams)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarMn /t REG_DWORD /d 0 /f
+echo Chat da barra de tarefas desativado.
+
+:: Desativar sugestões de pesquisa na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsDeviceSearchHistoryEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings" /v IsCloudSearchEnabled /t REG_DWORD /d 0 /f
+echo Sugestões de pesquisa desativadas.
+
+:: Desativar sugestões de aplicativos na tela inicial
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338388Enabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SubscribedContent-338389Enabled /t REG_DWORD /d 0 /f
+echo Sugestões de aplicativos desativadas.
+
+:: Desativar Timeline (Linha do Tempo)
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableActivityFeed /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v PublishUserActivities /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v UploadUserActivities /t REG_DWORD /d 0 /f
+echo Timeline desativada.
+
+:: Desativar People na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" /v PeopleBand /t REG_DWORD /d 0 /f
+echo People na barra de tarefas desativado.
+
+:: Desativar Feedback Hub
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v DoNotShowFeedbackNotifications /t REG_DWORD /d 1 /f
+echo Feedback Hub desativado.
+
+:: Desativar Quick Assist
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\QuickAssist" /v EnableQuickAssist /t REG_DWORD /d 0 /f
+echo Quick Assist desativado.
+
+:: Desativar sugestões de configurações rápidas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FeatureUsage\ShowQuickActionRecommendations" /v Enabled /t REG_DWORD /d 0 /f
+echo Sugestões rápidas desativadas.
+
+:: Desativar anúncios na tela de bloqueio
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RotatingLockScreenOverlayEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v RotatingLockScreenEnabled /t REG_DWORD /d 0 /f
+echo Anúncios na tela de bloqueio desativados.
+
+:: Desativar sugestões de dicas e truques
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v SoftLandingEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v ScoobeSystemSettingEnabled /t REG_DWORD /d 0 /f
+echo Dicas e truques desativados.
+
+:: Desativar Meet Now (Skype) na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v HideSCAMeetNow /t REG_DWORD /d 1 /f
+echo Meet Now desativado.
+
+:: Desativar sugestões de configurações no menu Iniciar
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_Recommendations /t REG_DWORD /d 0 /f
+echo Recomendações do menu Iniciar desativadas.
+
+:: Desativar sugestões de arquivos recentes no menu Iniciar
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Start_TrackDocs /t REG_DWORD /d 0 /f
+echo Arquivos recentes do menu Iniciar desativados.
+
+:: Desativar sugestões de contatos na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" /v PeopleBand /t REG_DWORD /d 0 /f
+echo Contatos na barra de tarefas desativados.
+
+:: Desativar sugestões de aplicativos na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowTaskViewButton /t REG_DWORD /d 0 /f
+echo Botão de visão de tarefas desativado.
+
+:: Desativar dicas de aplicativos na barra de tarefas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowTaskbarCloudContent /t REG_DWORD /d 0 /f
+echo Dicas de aplicativos na barra de tarefas desativadas.
+
+:: Desativar sugestões de notificações
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\PushNotifications" /v ToastEnabled /t REG_DWORD /d 0 /f
+echo Notificações toast desativadas.
+
+:: Desativar sugestões de privacidade
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Privacy" /v TailoredExperiencesWithDiagnosticDataEnabled /t REG_DWORD /d 0 /f
+echo Sugestões de privacidade desativadas.
+
+:: Desativar sugestões de sincronização de dispositivos
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\SettingSync" /v SyncPolicy /t REG_DWORD /d 5 /f
+echo Sugestões de sincronização desativadas.
+
+:: Desativar sugestões de backup na nuvem
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\OneDrive" /v DisablePersonalSync /t REG_DWORD /d 1 /f
+echo Sugestões de backup na nuvem desativadas.
+
+:: Desativar sugestões de atualização do Windows
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" /v SetDisableUXWUAccess /t REG_DWORD /d 1 /f
+echo Sugestões de atualização do Windows desativadas.
+
+:: Desativar sugestões de login com conta Microsoft
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v NoConnectedUser /t REG_DWORD /d 3 /f
+echo Sugestões de login com conta Microsoft desativadas.
+
+:: Desativar sugestões de backup do histórico de arquivos
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\FileHistory" /v Disabled /t REG_DWORD /d 1 /f
+echo Sugestões de backup do histórico de arquivos desativadas.
+
+:: Desativar sugestões de backup do OneDrive
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\OneDrive" /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f
+echo Sugestões de backup do OneDrive desativadas.
+
+:: Desativar sugestões de backup do Windows Hello
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Biometrics" /v Enabled /t REG_DWORD /d 0 /f
+echo Sugestões do Windows Hello desativadas.
+
+:: Desativar sugestões de backup do BitLocker
+reg add "HKLM\SOFTWARE\Policies\Microsoft\FVE" /v RDVConfigureBDE /t REG_DWORD /d 0 /f
+echo Sugestões do BitLocker desativadas.
+
+:: Desativar sugestões de backup do Windows Defender
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
+echo Sugestões do Windows Defender desativadas.
+
+echo Otimizações extras aplicadas!
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:otimizar_discord_jogos
+cls
+echo Otimizando para reduzir gargalos, travamentos e input lag em jogos + Discord...
+
+:: Plano de energia para desempenho máximo
+powercfg /setactive SCHEME_MIN
+
+:: Prioridade máxima para apps em primeiro plano
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 26 /f
+
+:: Reduzir input lag de áudio (MMCSS)
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v SystemResponsiveness /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v Scheduling Category /t REG_SZ /d "High" /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v SFIO Priority /t REG_SZ /d "High" /f
+
+:: Reduzir input lag de jogos (MMCSS)
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v Scheduling Category /t REG_SZ /d "High" /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v SFIO Priority /t REG_SZ /d "High" /f
+
+:: Desabilitar apps em segundo plano
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f
+
+:: Fechar apps que consomem recursos (OneDrive, Edge, Widgets)
+taskkill /f /im OneDrive.exe >nul 2>&1
+taskkill /f /im msedge.exe >nul 2>&1
+taskkill /f /im Widgets.exe >nul 2>&1
+
+:: Desabilitar Game Bar e Game DVR (reduz input lag)
+reg add "HKCU\SOFTWARE\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 0 /f
+reg add "HKCU\SOFTWARE\Microsoft\GameBar" /v AutoGameModeEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AppCaptureEnabled /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v AudioCaptureEnabled /t REG_DWORD /d 0 /f
+
+:: Desabilitar aceleração de mouse (melhor para jogos)
+reg add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d "0" /f
+reg add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d "0" /f
+
+echo Otimização aplicada! Discord e o jogo agora têm prioridade máxima e menos input lag.
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:remover_travamentos
+cls
+echo Aplicando otimizacoes para remover travamentos e lentidoes...
+
+:: Plano de energia para desempenho máximo
+powercfg /setactive SCHEME_MIN
+
+:: Desabilitar inicialização rápida
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v HiberbootEnabled /t REG_DWORD /d 0 /f
+
+:: Desabilitar apps em segundo plano
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f
+
+:: Limpar arquivos temporários e cache
+del /s /f /q %temp%\*.*
+del /s /f /q C:\Windows\Temp\*.*
+del /s /f /q C:\Windows\Prefetch\*.*
+del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
+
+:: Reduzir tempo de espera para encerrar processos travados
+reg add "HKCU\Control Panel\Desktop" /v AutoEndTasks /t REG_SZ /d "1" /f
+reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "1000" /f
+reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "1000" /f
+reg add "HKCU\Control Panel\Desktop" /v LowLevelHooksTimeout /t REG_SZ /d "1000" /f
+
+:: Otimizar uso de memória do sistema de arquivos
+fsutil behavior set memoryusage 2 >nul 2>&1
+
+:: Desabilitar serviços que causam lentidão (SysMain/Superfetch, WSearch)
+sc config SysMain start= disabled
+net stop SysMain
+sc config WSearch start= disabled
+net stop WSearch
+
+:: Desabilitar indexação de arquivos
+reg add "HKLM\SOFTWARE\Microsoft\Windows Search" /v SetupCompletedSuccessfully /t REG_DWORD /d 0 /f
+
+:: Desabilitar efeitos visuais para melhor desempenho
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
+
+:: Otimizar prioridade de processos em primeiro plano
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 26 /f
+
+echo Otimizacoes aplicadas! Reinicie o computador para melhores resultados.
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:aumentar_resposta_apps
+cls
+echo Otimizando para resposta instantanea ao abrir apps e janelas...
+
+:: Reduzir delay do menu iniciar e janelas
+reg add "HKCU\Control Panel\Desktop" /v MenuShowDelay /t REG_SZ /d "0" /f
+
+:: Reduzir delay de dicas de ferramentas
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowInfoTip /t REG_DWORD /d 0 /f
+
+:: Reduzir tempo de espera para encerrar processos travados
+reg add "HKCU\Control Panel\Desktop" /v HungAppTimeout /t REG_SZ /d "100" /f
+reg add "HKCU\Control Panel\Desktop" /v WaitToKillAppTimeout /t REG_SZ /d "100" /f
+reg add "HKCU\Control Panel\Desktop" /v LowLevelHooksTimeout /t REG_SZ /d "100" /f
+
+:: Otimizar prioridade de processos em primeiro plano
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 38 /f
+
+:: Desabilitar animações de janelas para resposta mais rápida
+reg add "HKCU\Control Panel\Desktop\WindowMetrics" /v MinAnimate /t REG_SZ /d "0" /f
+
+:: Desabilitar efeitos visuais para desempenho máximo
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v VisualFXSetting /t REG_DWORD /d 2 /f
+
+:: Limpar cache de arquivos temporários para evitar delay ao abrir apps novamente
+del /s /f /q %temp%\*.* >nul 2>&1
+del /s /f /q C:\Windows\Temp\*.* >nul 2>&1
+del /s /f /q C:\Windows\Prefetch\*.* >nul 2>&1
+
+:: Limpar cache de miniaturas do Explorer
+del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" >nul 2>&1
+
+echo Otimizacao de resposta aplicada! Reinicie o computador para melhores resultados.
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:ativar_notificacoes
+cls
+echo %w% - Enable Notifications%b%
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" /v "ToastEnabled" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_NOTIFICATION_SOUND" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings" /v "NOC_GLOBAL_SETTING_ALLOW_CRITICAL_TOASTS_ABOVE_LOCK" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\QuietHours" /v "Enabled" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\windows.immersivecontrolpanel_cw5n1h2txyewy!microsoft.windows.immersivecontrolpanel" /v "Enabled" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.AutoPlay" /v "Enabled" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.LowDisk" /v "Enabled" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.Print.Notification" /v "Enabled" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.SecurityAndMaintenance" /v "Enabled" /t REG_DWORD /d "1" /f 
+Reg.exe add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.WiFiNetworkManager" /v "Enabled" /t REG_DWORD /d "1" /f
+echo Notificacoes Reativadas!
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:arrumar_bugs_windows
+cls
+@echo off
+:: Remove políticas e chaves do Windows Update / WindowsSelfHost
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies" /f 2>nul
+reg delete "HKCU\Software\Microsoft\WindowsSelfHost" /f 2>nul
+reg delete "HKCU\Software\Policies" /f 2>nul
+
+reg delete "HKLM\Software\Microsoft\Policies" /f 2>nul
+reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies" /f 2>nul
+reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\WindowsStore\WindowsUpdate" /f 2>nul
+reg delete "HKLM\Software\Microsoft\WindowsSelfHost" /f 2>nul
+reg delete "HKLM\Software\Policies" /f 2>nul
+
+reg delete "HKLM\Software\WOW6432Node\Microsoft\Policies" /f 2>nul
+reg delete "HKLM\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Policies" /f 2>nul
+reg delete "HKLM\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\WindowsStore\WindowsUpdate" /f 2>nul
+
+:: Ativa o TrustedInstaller para iniciar automaticamente
+sc config trustedinstaller start=auto
+
+:: Apaga chaves de políticas e Windows Insider
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies" /f
+reg delete "HKCU\Software\Microsoft\WindowsSelfHost" /f
+reg delete "HKCU\Software\Policies" /f
+
+reg delete "HKLM\Software\Microsoft\Policies" /f
+reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies" /f
+reg delete "HKLM\Software\Microsoft\WindowsSelfHost" /f
+reg delete "HKLM\Software\Policies" /f
+reg delete "HKLM\Software\WOW6432Node\Microsoft\Policies" /f
+
+echo Bugs arrumados!
+pause
+goto menu

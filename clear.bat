@@ -1,146 +1,187 @@
 @echo off
-:: init.bat - Limpeza segura e otimização (não apaga arquivos importantes)
+echo Limpando arquivos de log, arquivos temp, caches e lixo do computador...
+
+:: Limpa a memória RAM
+echo Liberando memória RAM...
+echo.> %temp%\emptyfile
+del %temp%\emptyfile
+
+:: Limpeza de arquivos de log e temporarios do sistema
+del *.log /a /s /q /f
+del /s /f /q C:\Windows\Temp\*.*
+del /s /f /q C:\Windows\Prefetch\*.*
+del /s /f /q %temp%\*.*
+del /s /f /q C:\Windows\Logs\*.*
+del /s /f /q C:\Windows\Minidump\*.*
+
+:: Limpeza de rastros de navegacao (historico, cookies, etc.)
+RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 8
+RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 16384
+RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 2
+
+:: Limpeza de DNS
+ipconfig /flushdns
+
+:: Limpeza de thumbnails (miniaturas)
+del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
+
+:: Limpeza de arquivos de sistema antigos (Windows.old)
+if exist C:\Windows.old rd /s /q C:\Windows.old
+
+:: Limpeza de cache do .NET Framework
+del /s /f /q "%WINDIR%\Microsoft.NET\Framework\*\Temporary ASP.NET Files\*.*"
+del /s /f /q "%WINDIR%\Microsoft.NET\Framework64\*\Temporary ASP.NET Files\*.*"
+
+:: Limpeza de cache do OneDrive
+del /s /f /q "%LOCALAPPDATA%\Microsoft\OneDrive\*\cache\*.*"
+
+:: Limpeza de cache do Windows Update
+del /s /f /q C:\Windows\SoftwareDistribution\Download\*.*
+
+:: Limpeza de atualizações do Windows
+net stop wuauserv
+net stop UsoSvc
+rd /s /q C:\Windows\SoftwareDistribution
+md C:\Windows\SoftwareDistribution
+
+:: Limpeza da pasta Downloads
+echo Limpando a pasta Downloads...
+del /s /f /q "%USERPROFILE%\Downloads\*.*"
+rd /s /q "%USERPROFILE%\Downloads"
+md "%USERPROFILE%\Downloads"
+echo Pasta Downloads limpa.
+
+:: Limpeza da pasta Imagens
+echo Limpando a pasta Imagens...
+del /s /f /q "%USERPROFILE%\Pictures\*.*"
+rd /s /q "%USERPROFILE%\Pictures"
+md "%USERPROFILE%\Pictures"
+echo Pasta Imagens limpa.
+
+:: Limpeza de pastas temporárias
+RD /S /Q %temp%
+MKDIR %temp%
+takeown /f "%temp%" /r /d y
+RD /S /Q C:\Windows\Temp
+MKDIR C:\Windows\Temp
+takeown /f "C:\Windows\Temp" /r /d y
+takeown /f %temp% /r /d y
+
+:: Limpeza de caches de programas comuns
+del /s /f /q "%LOCALAPPDATA%\Discord\Cache\*.*"
+del /s /f /q "%LOCALAPPDATA%\Spotify\Storage\*.*"
+del /s /f /q "%LOCALAPPDATA%\Steam\htmlcache\*.*"
+del /s /f /q "%LOCALAPPDATA%\Microsoft\Teams\Cache\*.*"
+
+:: Limpeza de arquivos antigos do Windows Update
+del /s /f /q C:\Windows\SoftwareDistribution\Download\*.*
+del /s /f /q C:\Windows\System32\catroot2\*.*
+
+:: Limpeza da Lixeira
+echo Limpando a Lixeira...
+rd /s /q C:\$Recycle.bin
+echo Lixeira limpa.
+
+echo %w% -  Cleaning Useless Device Data...%b%
+chcp 437 > nul
+@echo on
+POWERSHELL "$Devices = Get-PnpDevice | ? Status -eq Unknown;foreach ($Device in $Devices) { &\"pnputil\" /remove-device $Device.InstanceId }"
+
+del %temp%\*.* /s /q
+del C:\Windows\temp\*.*/s/q
+del C:\Windows\prefetch\*.*/s/q
+/s /f /q c:\windows\temp\*.*
+rd /s /q c:\windows\temp
+md c:\windows\temp
+del /s /f /q C:\WINDOWS\Prefetch
+del /s /f /q %temp%\*.*
+rd /s /q %temp%
+md %temp%
+deltree /y c:\windows\tempor~1
+deltree /y c:\windows\temp
+deltree /y c:\windows\tmp
+deltree /y c:\windows\ff*.tmp
+deltree /y c:\windows\history
+deltree /y c:\windows\cookies
+deltree /y c:\windows\recent
+deltree /y c:\windows\spool\printers
+del c:\WIN386.SWP
+cls
+
+FOR /F "tokens=1, 2 * " %%V IN ('bcdedit') DO SET adminTest=%%V
+IF (%adminTest%)==(Access) goto noAdmin
+
+for /F "tokens=*" %%G in ('wevtutil.exe el') DO (
+    echo Limpando logs de eventos: %%G
+    wevtutil.exe cl %%G
+)
+
+del /s /f /q "%USERPROFILE%\Local Settings\History"\*.*
+rd /s /q "%USERPROFILE%\Local Settings\History"
+md "%USERPROFILE%\Local Settings\History"
+
+del /s /f /q "%USERPROFILE%\Local Settings\Temporary Internet Files"\*.*
+rd /s /q "%USERPROFILE%\Local Settings\Temporary Internet Files"
+md "%USERPROFILE%\Local Settings\Temporary Internet Files"
+
+del /s /f /q "%USERPROFILE%\Local Settings\Temp"\*.*
+rd /s /q "%USERPROFILE%\Local Settings\Temp"
+md "%USERPROFILE%\Local Settings\Temp"
+
+del /s /f /q "%USERPROFILE%\Recent"\*.*
+rd /s /q "%USERPROFILE%\Recent"
+md "%USERPROFILE%\Recent"
+
+del /s /f /q "%USERPROFILE%\Cookies"\*.*
+rd /s /q "%USERPROFILE%\Cookies"
+md "%USERPROFILE%\Cookies"
+
+for /f %%a in ('wmic cpu get L2CacheSize ^| findstr /r "[0-9][0-9]"') do (
+    set /a l2c=%%a
+    set /a sum1=%%a
+)
+
+for /f %%a in ('wmic cpu get L3CacheSize ^| findstr /r "[0-9][0-9]"') do (
+    set /a l3c=%%a
+    set /a sum2=%%a
+)
+
+RD /S /Q %temp%
+MKDIR %temp%
+takeown /f "%temp%" /r /d y
+takeown /f "C:\Windows\Temp" /r /d y
+RD /S /Q C:\Windows\Temp
+MKDIR C:\Windows\Temp
+takeown /f "C:\Windows\Temp" /r /d y
+takeown /f %temp% /r /d y
+takeown /A /R /D Y /F C:\Users\%USERNAME%\AppData\Local\Temp\
+icacls C:\Users\%USERNAME%\AppData\Local\Temp\ /grant administradores:F /T /C
+rmdir /q /s C:\Users\%USERNAME%\AppData\Local\Temp\
+md C:\Users\%USERNAME%\AppData\Local\Temp\
+takeown /A /R /D Y /F C:\windows\temp
+icacls C:\windows\temp /grant administradores:F /T /C
+rmdir /q /s c:\windows\temp
+md c:\windows\temp
+cls
+
+del c:\windows\logs\cbs\*.log
+del C:\Windows\Logs\MoSetup\*.log
+del C:\Windows\Panther\*.log /s /q
+del C:\Windows\inf\*.log /s /q
+del C:\Windows\logs\*.log /s /q
+del C:\Windows\SoftwareDistribution\*.log /s /q
+del C:\Windows\Microsoft.NET\*.log /s /q
+del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\WebCache\*.log /s /q
+del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\SettingSync\*.log /s /q
+del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\Explorer\ThumbCacheToDelete\*.tmp /s /q
+del C:\Users\%USERNAME%\AppData\Local\Microsoft\"Terminal Server Client"\Cache\*.bin /s /q
+rmdir /q /s C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\INetCache\
+
+rd /s /q C:\Windows\SoftwareDistribution
+md C:\Windows\SoftwareDistribution
+
+cd/
+del *.log /a /s /q /f
 @echo off
-setlocal EnableDelayedExpansion
-
-set LOG=%LOCALAPPDATA%\init_cleanup_log.txt
-echo ===== Init Cleanup: %date% %time% =====>> "%LOG%"
-
-echo Removendo verificação de privilégios; executando todos os comandos (alguns podem falhar se não rodar como admin).>> "%LOG%"
-
-echo Sincronizando hora (w32time) - operacao leve...>> "%LOG%"
-sc config w32time start= auto 2> nul
-net start w32time 2> nul
-w32tm /resync 2> nul
-net stop w32time 2> nul
-sc config w32time start= disabled 2> nul
-
-echo Limpando temporários do usuário...>> "%LOG%"
-if exist "%temp%\*" (
-	for /d %%D in ("%temp%\*") do rd /s /q "%%D" 2>nul
-	del /f /q "%temp%\*.*" 2>nul
-	echo Limpeza de %%temp%% concluida>> "%LOG%"
-) else (
-	echo Pasta %%temp%% vazia ou inexistente>> "%LOG%"
-)
-
-echo Limpando temporários do sistema (C:\Windows\Temp)...>> "%LOG%"
-if exist "C:\Windows\Temp\*" (
-	takeown /f "C:\Windows\Temp" /r /d y >nul 2>&1
-	for /d %%D in ("C:\Windows\Temp\*") do rd /s /q "%%D" 2>nul
-	del /f /q "C:\Windows\Temp\*.*" 2>nul
-	echo Limpeza C:\Windows\Temp concluida>> "%LOG%"
-) else (
-	echo C:\Windows\Temp vazia ou inexistente>> "%LOG%"
-)
-
-:: Observação: não removemos Prefetch nem todos os arquivos .log globalmente - isso pode afetar
-:: desempenho e diagnostico. Mantemos limpeza dirigida e segura.
-
-echo Limpando caches de navegadores e apps (se existirem)...>> "%LOG%"
-if exist "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache\*" (
-	rd /s /q "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Cache" 2>nul
-	echo Chrome cache limpo>> "%LOG%"
-) else echo Chrome cache não encontrado>> "%LOG%"
-
-if exist "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Media Cache\*" (
-	rd /s /q "%LOCALAPPDATA%\Google\Chrome\User Data\Default\Media Cache" 2>nul
-	echo Chrome media cache limpo>> "%LOG%"
-) 
-
-if exist "%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Cache\*" (
-	rd /s /q "%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Cache" 2>nul
-	echo Edge cache limpo>> "%LOG%"
-)
-
-if exist "%LOCALAPPDATA%\Mozilla\Firefox\Profiles\" (
-	for /d %%P in ("%LOCALAPPDATA%\Mozilla\Firefox\Profiles\*") do (
-		if exist "%%P\cache2\*" rd /s /q "%%P\cache2" 2>nul & echo Firefox cache limpo em %%P>> "%LOG%"
-	)
-)
-
-if exist "%LOCALAPPDATA%\Discord\Cache\*" (
-	rd /s /q "%LOCALAPPDATA%\Discord\Cache" 2>nul
-	echo Discord cache limpo>> "%LOG%"
-)
-
-if exist "%LOCALAPPDATA%\Microsoft\Teams\Cache\*" (
-	rd /s /q "%LOCALAPPDATA%\Microsoft\Teams\Cache" 2>nul
-	echo Teams cache limpo>> "%LOG%"
-)
-
-if exist "%LOCALAPPDATA%\Spotify\Storage\*" (
-	rd /s /q "%LOCALAPPDATA%\Spotify\Storage" 2>nul
-	echo Spotify storage limpo>> "%LOG%"
-)
-
-if exist "%LOCALAPPDATA%\Steam\htmlcache\*" (
-	rd /s /q "%LOCALAPPDATA%\Steam\htmlcache" 2>nul
-	echo Steam htmlcache limpo>> "%LOG%"
-)
-
-:: Limpar cache do OneDrive de forma segura (somente subpastas cache)
-if exist "%LOCALAPPDATA%\Microsoft\OneDrive\*\cache\*" (
-	for /d %%O in ("%LOCALAPPDATA%\Microsoft\OneDrive\*\cache") do rd /s /q "%%O" 2>nul & echo OneDrive cache limpo em %%O>> "%LOG%"
-)
-
-echo Limpando cache de miniaturas (thumbcache)...>> "%LOG%"
-if exist "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" (
-	del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" 2>nul
-	echo Thumbnails limpos>> "%LOG%"
-)
-
-echo Limpando relatórios de erro do Windows (WER) - somente arquivos antigos...>> "%LOG%"
-if exist "%ALLUSERSPROFILE%\Microsoft\Windows\WER\ReportArchive\*" (
-	del /s /f /q "%ALLUSERSPROFILE%\Microsoft\Windows\WER\ReportArchive\*" 2>nul
-	echo ReportArchive limpo>> "%LOG%"
-)
-if exist "%ALLUSERSPROFILE%\Microsoft\Windows\WER\ReportQueue\*" (
-	del /s /f /q "%ALLUSERSPROFILE%\Microsoft\Windows\WER\ReportQueue\*" 2>nul
-	echo ReportQueue limpo>> "%LOG%"
-)
-
-echo Limpando cache da Microsoft Store (wsreset)...>> "%LOG%"
-if exist "%windir%\System32\wsreset.exe" (
-	start /wait "" "%windir%\System32\wsreset.exe" >nul 2>&1
-	echo wsreset executado>> "%LOG%"
-) else echo wsreset não encontrado>> "%LOG%"
-
-echo Limpando Windows Update (apenas Download contents)...>> "%LOG%"
-net stop wuauserv >nul 2>&1
-if exist "C:\Windows\SoftwareDistribution\Download\*" (
-	del /s /f /q "C:\Windows\SoftwareDistribution\Download\*" 2>nul
-	echo Windows Update Download limpo>> "%LOG%"
-) else echo Pasta de Download do Windows Update vazia>> "%LOG%"
-
-echo Rodando limpeza de componentes do Windows (DISM)...>> "%LOG%"
-dism /online /Cleanup-Image /StartComponentCleanup >> "%LOG%" 2>&1
-echo DISM StartComponentCleanup executado (ou erro registrado)>> "%LOG%"
-
-echo Otimizando unidades (SSD/HDD) via PowerShell (Optimize-Volume)...>> "%LOG%"
-powershell -NoProfile -Command "Get-Volume -FileSystemType NTFS | Where-Object DriveType -EQ 3 | ForEach-Object { if ($_.MediaType -eq 'SSD') { Optimize-Volume -DriveLetter $_.DriveLetter -ReTrim -Verbose } else { Optimize-Volume -DriveLetter $_.DriveLetter -Defrag -Verbose } }" >> "%LOG%" 2>&1
-echo Otimizacao concluida (ou erro registrado)>> "%LOG%"
-
-echo Limpando arquivos de logs temporarios de apps (somente pasta Logs do Windows se existir)...>> "%LOG%"
-if exist "C:\Windows\Logs\*" (
-	for /d %%L in ("C:\Windows\Logs\*") do (
-		rem manter pastas essenciais; excluir logs temporarios reconhecidos
-		if exist "%%L\CBSclean.log" del /f /q "%%L\CBSclean.log" 2>nul
-	)
-)
-
-echo Limpando Lixeira (silencioso)...>> "%LOG%"
-rd /s /q C:\$Recycle.bin 2>nul
-powershell.exe -NoProfile -Command "Clear-RecycleBin -Confirm:$false" >nul 2>&1
-echo Lixeira limpa>> "%LOG%"
-
-echo Removendo dispositivos com status Unknown (opcional)...>> "%LOG%"
-POWERSHELL "Get-PnpDevice | Where-Object Status -eq 'Unknown' | ForEach-Object { pnputil /remove-device $_.InstanceId }" >> "%LOG%" 2>&1
-echo Remocao de dispositivos Unknown tentada (ou erro registrado)>> "%LOG%"
-
-echo Finalizando: resumindo ações no log...>> "%LOG%"
-echo ===== Fim: %date% %time% =====>> "%LOG%"
-
-endlocal
-echo Limpeza concluida. Verifique o log em %LOG%
+echo Limpeza concluida.
 exit /0
