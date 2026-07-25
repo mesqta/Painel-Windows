@@ -77,89 +77,28 @@ goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :desativar_servicos
 cls
-echo Desabilitando o servico SysMain (SuperFetch) e outros servicos...
-pause
 
-sc config SysMain start= disabled
-net stop SysMain
-
-sc config WSearch start= disabled
-net stop WSearch
-
-sc config TapiSrv start= disabled
-net stop TapiSrv
-
-sc config Spooler start= disabled
-net stop Spooler
-
-sc config TermService start= disabled
-net stop TermService
-
-sc config PhoneSvc start= disabled
-net stop PhoneSvc
-
-sc config BDBESVC start= disabled
-net stop BDBESVC
-
-sc config WbioSrvc start= disabled
-net stop WbioSrvc
-
-sc config RemoteRegistry start= disabled
-net stop RemoteRegistry
-
-sc config SCardSvr start= disabled
-net stop SCardSvr
-
-sc config WerSvc start= disabled
-net stop WerSvc
-
-:: Desabilitar o servico WinSAT
-sc config WinSAT start= disabled
-net stop WinSAT
-
-:: Desabilitar tarefas agendadas do WinSAT no Task Scheduler
-schtasks /Change /TN "\Microsoft\Windows\Maintenance\WinSAT" /Disable
-schtasks /Change /TN "\Microsoft\Windows\Maintenance\WinSAT_Regular" /Disable
-
-:: Desabilitar os serviços adicionais
-sc config WpcMonSvc start= disabled
-net stop WpcMonSvc
-
-sc config diagsvc start= disabled
-net stop diagsvc
-
-sc config DiagTrack start= disabled
-net stop DiagTrack
-
-sc config Netlogon start= disabled
-net stop Netlogon
-
-sc config pla start= disabled
-net stop pla
-
-sc config workfolderssvc start= disabled
-net stop workfolderssvc
-
-sc config SCPolicySvc start= disabled
-net stop SCPolicySvc
-
-sc config ifscv start= disabled
-net stop ifscv
-
-sc config icssvc start= disabled
-net stop icssvc
-
-sc config SensorService start= disabled
-net stop SensorService
-
-sc config bthserv start= disabled
-net stop bthserv
-
-sc config InventorySvc start= disabled
-net stop InventorySvc
-
-:: Lista de processos para encerrar
-call :killprocess msedge.exe
+ echo Desabilitando apenas servicos realmente inuteis...
+ 
+ set "BACKUP=%TEMP%\services_backup_%USERNAME%_%DATE:~0,2%-%TIME:~0,2%.txt"
+ echo Backup de servicos - %DATE% %TIME%>"%BACKUP%"
+ 
+ for %%A in (
+     RemoteRegistry
+     WerSvc
+     WinSAT
+     DiagTrack
+     WpcMonSvc
+     InventorySvc
+ ) do (
+     echo Salvando estado atual de %%A >> "%BACKUP%"
+     sc qc %%A >> "%BACKUP%" 2>&1
+     echo -- >> "%BACKUP%"
+     sc config %%A start= disabled >nul 2>&1
+     net stop %%A >nul 2>&1
+     echo %%A desabilitado. >> "%BACKUP%"
+     echo %%A desabilitado.
+ )
 call :killprocess onedrive.exe
 
 :: Desabilitar recursos de economia de energia
@@ -392,11 +331,7 @@ schtasks /end /tn "\Microsoft\Windows\Shell\FamilySafetyUpload" > nul 2>&1
 schtasks /change /tn "\Microsoft\Windows\Shell\FamilySafetyUpload" /Disable > nul 2>&1
 schtasks /end /tn "\Microsoft\Windows\Maintenance\WinSAT" > nul 2>&1
 
-echo %w% - Disabling Bluetooth %b%
-Reg.exe add "HKLM\SYSTEM\ControlSet001\Services\BTAGService" /v "Start" /t REG_DWORD /d "4" /f
-Reg.exe add "HKLM\SYSTEM\ControlSet001\Services\bthserv" /v "Start" /t REG_DWORD /d "4" /f
-Reg.exe add "HKLM\SYSTEM\ControlSet001\Services\BthAvctpSvc" /v "Start" /t REG_DWORD /d "4" /f
-Reg.exe add "HKLM\SYSTEM\ControlSet001\Services\BluetoothUserService" /v "Start" /t REG_DWORD /d "4" /f
+:: Bluetooth services are left enabled by default to avoid breaking systems with Bluetooth hardware.
 
 echo %w% - Disabling Power Telemetry %b%
 Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "EnergyEstimationEnabled" /t REG_DWORD /d "0" /f
@@ -415,28 +350,78 @@ goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :limpar_arquivos
 cls
-echo Limpando arquivos de log, arquivos temp, caches e lixo do computador...
+echo Limpando apenas arquivos extremamente inuteis e desativando armazenamento automatizado de temporarios...
 
-:: Limpa a memória RAM
-echo Liberando memória RAM...
-echo.> %temp%\emptyfile
-del %temp%\emptyfile
+echo [1/4] Limpando temporarios e caches de sistema...
+for %%P in (
+    "%TEMP%\*.*"
+    "%LOCALAPPDATA%\Temp\*.*"
+    "%WINDIR%\Temp\*.*"
+    "%WINDIR%\SoftwareDistribution\Download\*.*"
+    "%WINDIR%\System32\catroot2\*.*"
+    "%LOCALAPPDATA%\Microsoft\Windows\WebCache\*.*"
+    "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
+    "%LOCALAPPDATA%\Microsoft\Windows\Explorer\ThumbCacheToDelete\*.tmp"
+    "%LOCALAPPDATA%\Microsoft\Windows\INetCache\*.*"
+    "%LOCALAPPDATA%\Microsoft\Windows\INetCookies\*.*"
+    "%LOCALAPPDATA%\Microsoft\OneDrive\*\cache\*.*"
+) do (
+    if exist %%~P del /s /f /q "%%~P" >nul 2>&1
+)
 
-:: Limpeza de arquivos de log e temporarios do sistema
-del *.log /a /s /q /f
-del /s /f /q C:\Windows\Temp\*.*
-del /s /f /q C:\Windows\Prefetch\*.*
-del /s /f /q %temp%\*.*
-del /s /f /q C:\Windows\Logs\*.*
-del /s /f /q C:\Windows\Minidump\*.*
+for %%D in (
+    "%WINDIR%\SoftwareDistribution\Download"
+    "%WINDIR%\System32\catroot2"
+    "%WINDIR%\Prefetch"
+    "%LOCALAPPDATA%\Microsoft\Windows\WebCache"
+    "%LOCALAPPDATA%\Microsoft\Windows\INetCache"
+    "%LOCALAPPDATA%\Microsoft\Windows\Explorer\ThumbCacheToDelete"
+) do (
+    if exist "%%~D" rd /s /q "%%~D" >nul 2>&1
+    if not exist "%%~D" md "%%~D" >nul 2>&1
+)
 
-:: Limpeza de rastros de navegacao (historico, cookies, etc.)
-RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 8
-RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 16384
-RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 2
+if exist "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" del /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" >nul 2>&1
 
-:: Limpeza de DNS
-ipconfig /flushdns
+echo [2/4] Limpando logs e atualizacoes a cada passo...
+net stop wuauserv >nul 2>&1
+net stop UsoSvc >nul 2>&1
+if exist "%WINDIR%\SoftwareDistribution" rd /s /q "%WINDIR%\SoftwareDistribution" >nul 2>&1
+md "%WINDIR%\SoftwareDistribution" >nul 2>&1
+if exist "%WINDIR%\System32\catroot2" rd /s /q "%WINDIR%\System32\catroot2" >nul 2>&1
+md "%WINDIR%\System32\catroot2" >nul 2>&1
+
+del /s /f /q "%WINDIR%\Logs\*.log" >nul 2>&1
+if exist "%WINDIR%\Panther" del /s /f /q "%WINDIR%\Panther\*.log" >nul 2>&1
+if exist "%WINDIR%\INF" del /s /f /q "%WINDIR%\INF\*.log" >nul 2>&1
+if exist "%LOCALAPPDATA%\Microsoft\Windows\WebCache" del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\WebCache\*.log" >nul 2>&1
+if exist "%LOCALAPPDATA%\Microsoft\Windows\SettingSync" del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\SettingSync\*.log" >nul 2>&1
+RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 2 >nul 2>&1
+RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 8 >nul 2>&1
+ipconfig /flushdns >nul 2>&1
+FOR /F "tokens=1, 2 * " %%V IN ('bcdedit') DO SET adminTest=%%V
+IF NOT "%adminTest%"=="Access" (
+    for /F "tokens=*" %%G in ('wevtutil.exe el') DO wevtutil.exe cl "%%G" >nul 2>&1
+)
+
+echo [3/4] Removendo lixo de cache adicional e lixeira...
+rd /s /q C:\$Recycle.bin >nul 2>&1
+md C:\$Recycle.bin >nul 2>&1
+if exist "%LOCALAPPDATA%\Discord\Cache\*.*" del /s /f /q "%LOCALAPPDATA%\Discord\Cache\*.*" >nul 2>&1
+if exist "%LOCALAPPDATA%\Spotify\Storage\*.*" del /s /f /q "%LOCALAPPDATA%\Spotify\Storage\*.*" >nul 2>&1
+if exist "%LOCALAPPDATA%\Steam\htmlcache\*.*" del /s /f /q "%LOCALAPPDATA%\Steam\htmlcache\*.*" >nul 2>&1
+if exist "%LOCALAPPDATA%\Microsoft\Teams\Cache\*.*" del /s /f /q "%LOCALAPPDATA%\Microsoft\Teams\Cache\*.*" >nul 2>&1
+
+echo [4/4] Desativando armazenamento automatizado de temporarios e caches...
+Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\StorageSense" /v "AllowStorageSense" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\StorageSense" /v "StorageSenseEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
+Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v "DisableThumbnailCache" /t REG_DWORD /d "1" /f >nul 2>&1
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v "NtfsDisableLastAccessUpdate" /t REG_DWORD /d "1" /f >nul 2>&1
+fsutil behavior set disablelastaccess 1 >nul 2>&1
+
+echo Limpeza concluida.
+pause
+goto menu
 
 :: Limpeza de thumbnails (miniaturas)
 del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
