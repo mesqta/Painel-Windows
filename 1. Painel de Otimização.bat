@@ -11,7 +11,7 @@ echo [6] Storage Optimizations
 echo [7] Uninstall Useless Apps
 echo [8] Disable GameDvr
 echo [9] Set memoryusage
-echo [10] Activate processor performance boost mode
+echo [10] Melhorar desempenho do processador Intel i5-13400F
 echo [11] Reduce processes
 echo [12] Disable Settings w11
 echo [13] Mouse Settings
@@ -19,6 +19,7 @@ echo [14] Otimizacoes Extras
 echo [15] Otimizar para Discord + Jogos
 echo [16] Remover Travamentos e Lentidoes
 echo [17] Resposta Instantanea ao Abrir Apps e Janelas
+echo [18] CPU Nunca Dormir e Unpark
 echo -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 echo [S] Fechar Programa
 echo [L] Limpar Arquivos
@@ -36,7 +37,7 @@ if "%choice%"=="6" goto storage_optimizations
 if "%choice%"=="7" goto uninstall_useless_apps
 if "%choice%"=="8" goto disable_game_dvr
 if "%choice%"=="9" goto set_memory_usage
-if "%choice%"=="10" goto activate_processor_performance_boost_mode
+if "%choice%"=="10" goto intel_i5_performance_mode
 if "%choice%"=="11" goto reduce_processes
 if "%choice%"=="12" goto disable_settings
 if "%choice%"=="13" goto mouse_settings
@@ -44,7 +45,8 @@ if "%choice%"=="14" goto extra_optimizations
 if "%choice%"=="15" goto otimizar_discord_jogos
 if "%choice%"=="16" goto remover_travamentos
 if "%choice%"=="17" goto aumentar_resposta_apps
-if "%choice%"=="18" goto limpar_lixeira
+if "%choice%"=="18" goto cpu_unpark_mode
+if "%choice%"=="19" goto limpar_lixeira
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 if /I "%choice%"=="S" goto fechar_programa
 if /I "%choice%"=="L" goto limpar_arquivos
@@ -350,32 +352,48 @@ goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :limpar_arquivos
 cls
-echo Limpando apenas arquivos extremamente inuteis e desativando armazenamento automatizado de temporarios...
+echo Limpeza profunda de temporarios, caches e arquivos dispensaveis...
+echo.
 
-echo [1/4] Limpando temporarios e caches de sistema...
+echo [1/7] Parando servicos de Windows Update e USB...
+net stop wuauserv >nul 2>&1
+net stop UsoSvc >nul 2>&1
+timeout /t 1 >nul 2>&1
+
+echo [2/7] Limpando temporarios e caches de sistema...
 for %%P in (
     "%TEMP%\*.*"
     "%LOCALAPPDATA%\Temp\*.*"
+    "%APPDATA%\Temp\*.*"
+    "%USERPROFILE%\AppData\LocalLow\Temp\*.*"
     "%WINDIR%\Temp\*.*"
+    "%ProgramData%\Temp\*.*"
     "%WINDIR%\SoftwareDistribution\Download\*.*"
-    "%WINDIR%\System32\catroot2\*.*"
     "%LOCALAPPDATA%\Microsoft\Windows\WebCache\*.*"
     "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
     "%LOCALAPPDATA%\Microsoft\Windows\Explorer\ThumbCacheToDelete\*.tmp"
     "%LOCALAPPDATA%\Microsoft\Windows\INetCache\*.*"
-    "%LOCALAPPDATA%\Microsoft\Windows\INetCookies\*.*"
     "%LOCALAPPDATA%\Microsoft\OneDrive\*\cache\*.*"
+    "%LOCALAPPDATA%\D3DSCache\*.*"
+    "%LOCALAPPDATA%\CrashDumps\*.dmp"
+    "%LOCALAPPDATA%\Microsoft\Windows\WER\ReportArchive\*.*"
+    "%LOCALAPPDATA%\Microsoft\Windows\WER\ReportQueue\*.*"
+    "%LOCALAPPDATA%\Microsoft\Windows\WER\Temp\*.*"
+    "%ProgramData%\Microsoft\Windows\WER\ReportArchive\*.*"
+    "%ProgramData%\Microsoft\Windows\WER\ReportQueue\*.*"
+    "%ProgramData%\Microsoft\Windows\WER\Temp\*.*"
+    "%ProgramData%\Microsoft\Windows\DeliveryOptimization\Cache\*.*"
 ) do (
     if exist %%~P del /s /f /q "%%~P" >nul 2>&1
 )
 
 for %%D in (
     "%WINDIR%\SoftwareDistribution\Download"
-    "%WINDIR%\System32\catroot2"
-    "%WINDIR%\Prefetch"
     "%LOCALAPPDATA%\Microsoft\Windows\WebCache"
     "%LOCALAPPDATA%\Microsoft\Windows\INetCache"
     "%LOCALAPPDATA%\Microsoft\Windows\Explorer\ThumbCacheToDelete"
+    "%LOCALAPPDATA%\D3DSCache"
+    "%ProgramData%\Microsoft\Windows\DeliveryOptimization\Cache"
 ) do (
     if exist "%%~D" rd /s /q "%%~D" >nul 2>&1
     if not exist "%%~D" md "%%~D" >nul 2>&1
@@ -383,208 +401,75 @@ for %%D in (
 
 if exist "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" del /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" >nul 2>&1
 
-echo [2/4] Limpando logs e atualizacoes a cada passo...
-net stop wuauserv >nul 2>&1
-net stop UsoSvc >nul 2>&1
+echo [3/7] Limpando logs de sistema, atualizacoes e relatorios de erro...
 if exist "%WINDIR%\SoftwareDistribution" rd /s /q "%WINDIR%\SoftwareDistribution" >nul 2>&1
 md "%WINDIR%\SoftwareDistribution" >nul 2>&1
-if exist "%WINDIR%\System32\catroot2" rd /s /q "%WINDIR%\System32\catroot2" >nul 2>&1
-md "%WINDIR%\System32\catroot2" >nul 2>&1
+if exist "C:\Windows.old" rd /s /q "C:\Windows.old" >nul 2>&1
 
 del /s /f /q "%WINDIR%\Logs\*.log" >nul 2>&1
 if exist "%WINDIR%\Panther" del /s /f /q "%WINDIR%\Panther\*.log" >nul 2>&1
 if exist "%WINDIR%\INF" del /s /f /q "%WINDIR%\INF\*.log" >nul 2>&1
 if exist "%LOCALAPPDATA%\Microsoft\Windows\WebCache" del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\WebCache\*.log" >nul 2>&1
 if exist "%LOCALAPPDATA%\Microsoft\Windows\SettingSync" del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\SettingSync\*.log" >nul 2>&1
-RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 2 >nul 2>&1
-RunDll32.exe InetCpl.cpl,ClearMyTracksByProcess 8 >nul 2>&1
-ipconfig /flushdns >nul 2>&1
-FOR /F "tokens=1, 2 * " %%V IN ('bcdedit') DO SET adminTest=%%V
-IF NOT "%adminTest%"=="Access" (
-    for /F "tokens=*" %%G in ('wevtutil.exe el') DO wevtutil.exe cl "%%G" >nul 2>&1
-)
 
-echo [3/4] Removendo lixo de cache adicional e lixeira...
+echo [4/7] Limpando lixeira e caches de rede...
 rd /s /q C:\$Recycle.bin >nul 2>&1
 md C:\$Recycle.bin >nul 2>&1
-if exist "%LOCALAPPDATA%\Discord\Cache\*.*" del /s /f /q "%LOCALAPPDATA%\Discord\Cache\*.*" >nul 2>&1
-if exist "%LOCALAPPDATA%\Spotify\Storage\*.*" del /s /f /q "%LOCALAPPDATA%\Spotify\Storage\*.*" >nul 2>&1
-if exist "%LOCALAPPDATA%\Steam\htmlcache\*.*" del /s /f /q "%LOCALAPPDATA%\Steam\htmlcache\*.*" >nul 2>&1
-if exist "%LOCALAPPDATA%\Microsoft\Teams\Cache\*.*" del /s /f /q "%LOCALAPPDATA%\Microsoft\Teams\Cache\*.*" >nul 2>&1
+ipconfig /flushdns >nul 2>&1
 
-echo [4/4] Desativando armazenamento automatizado de temporarios e caches...
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\StorageSense" /v "AllowStorageSense" /t REG_DWORD /d "0" /f >nul 2>&1
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\StorageSense" /v "StorageSenseEnabled" /t REG_DWORD /d "0" /f >nul 2>&1
-Reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v "DisableThumbnailCache" /t REG_DWORD /d "1" /f >nul 2>&1
-Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v "NtfsDisableLastAccessUpdate" /t REG_DWORD /d "1" /f >nul 2>&1
-fsutil behavior set disablelastaccess 1 >nul 2>&1
-
-echo Limpeza concluida.
-pause
-goto menu
-
-:: Limpeza de thumbnails (miniaturas)
-del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
-
-:: Limpeza de arquivos de sistema antigos (Windows.old)
-if exist C:\Windows.old rd /s /q C:\Windows.old
-
-:: Limpeza de cache do .NET Framework
-del /s /f /q "%WINDIR%\Microsoft.NET\Framework\*\Temporary ASP.NET Files\*.*"
-del /s /f /q "%WINDIR%\Microsoft.NET\Framework64\*\Temporary ASP.NET Files\*.*"
-
-:: Limpeza de cache do OneDrive
-del /s /f /q "%LOCALAPPDATA%\Microsoft\OneDrive\*\cache\*.*"
-
-:: Limpeza de cache do Windows Update
-del /s /f /q C:\Windows\SoftwareDistribution\Download\*.*
-
-:: Limpeza de atualizações do Windows
-net stop wuauserv
-net stop UsoSvc
-rd /s /q C:\Windows\SoftwareDistribution
-md C:\Windows\SoftwareDistribution
-
-:: Limpeza da pasta Downloads
-echo Limpando a pasta Downloads...
-del /s /f /q "%USERPROFILE%\Downloads\*.*"
-rd /s /q "%USERPROFILE%\Downloads"
-md "%USERPROFILE%\Downloads"
-echo Pasta Downloads limpa.
-
-:: Limpeza da pasta Imagens
-echo Limpando a pasta Imagens...
-del /s /f /q "%USERPROFILE%\Pictures\*.*"
-rd /s /q "%USERPROFILE%\Pictures"
-md "%USERPROFILE%\Pictures"
-echo Pasta Imagens limpa.
-
-:: Limpeza de pastas temporárias
-RD /S /Q %temp%
-MKDIR %temp%
-takeown /f "%temp%" /r /d y
-RD /S /Q C:\Windows\Temp
-MKDIR C:\Windows\Temp
-takeown /f "C:\Windows\Temp" /r /d y
-takeown /f %temp% /r /d y
-
-:: Limpeza de caches de programas comuns
-del /s /f /q "%LOCALAPPDATA%\Discord\Cache\*.*"
-del /s /f /q "%LOCALAPPDATA%\Spotify\Storage\*.*"
-del /s /f /q "%LOCALAPPDATA%\Steam\htmlcache\*.*"
-del /s /f /q "%LOCALAPPDATA%\Microsoft\Teams\Cache\*.*"
-
-:: Limpeza de arquivos antigos do Windows Update
-del /s /f /q C:\Windows\SoftwareDistribution\Download\*.*
-del /s /f /q C:\Windows\System32\catroot2\*.*
-
-:: Limpeza da Lixeira
-echo Limpando a Lixeira...
-rd /s /q C:\$Recycle.bin
-echo Lixeira limpa.
-
-echo %w% -  Cleaning Useless Device Data...%b%
-chcp 437 > nul
-@echo on
-POWERSHELL "$Devices = Get-PnpDevice | ? Status -eq Unknown;foreach ($Device in $Devices) { &\"pnputil\" /remove-device $Device.InstanceId }"
-
-del %temp%\*.* /s /q
-del C:\Windows\temp\*.*/s/q
-del C:\Windows\prefetch\*.*/s/q
-/s /f /q c:\windows\temp\*.*
-rd /s /q c:\windows\temp
-md c:\windows\temp
-del /s /f /q C:\WINDOWS\Prefetch
-del /s /f /q %temp%\*.*
-rd /s /q %temp%
-md %temp%
-deltree /y c:\windows\tempor~1
-deltree /y c:\windows\temp
-deltree /y c:\windows\tmp
-deltree /y c:\windows\ff*.tmp
-deltree /y c:\windows\history
-deltree /y c:\windows\cookies
-deltree /y c:\windows\recent
-deltree /y c:\windows\spool\printers
-del c:\WIN386.SWP
-cls
-
-FOR /F "tokens=1, 2 * " %%V IN ('bcdedit') DO SET adminTest=%%V
-IF (%adminTest%)==(Access) goto noAdmin
-
-for /F "tokens=*" %%G in ('wevtutil.exe el') DO (
-    echo Limpando logs de eventos: %%G
-    wevtutil.exe cl %%G
+echo [5/7] Limpando caches recriaveis do AppData...
+for %%D in (
+    "%LOCALAPPDATA%\Discord\Cache"
+    "%LOCALAPPDATA%\Discord\Code Cache"
+    "%LOCALAPPDATA%\Discord\GPUCache"
+    "%APPDATA%\discord\Cache"
+    "%LOCALAPPDATA%\Spotify\Browser\Cache"
+    "%LOCALAPPDATA%\Spotify\Data\Cache"
+    "%LOCALAPPDATA%\SquirrelTemp"
+    "%LOCALAPPDATA%\electron-updater\pending"
+    "%LOCALAPPDATA%\Steam\htmlcache"
+    "%LOCALAPPDATA%\Microsoft\Teams\Cache"
+    "%LOCALAPPDATA%\Microsoft\Teams\Code Cache"
+    "%LOCALAPPDATA%\Microsoft\Teams\GPUCache"
+    "%LOCALAPPDATA%\NVIDIA\DXCache"
+    "%LOCALAPPDATA%\NVIDIA\GLCache"
+    "%LOCALAPPDATA%\AMD\DxCache"
+    "%LOCALAPPDATA%\AMD\GLCache"
+) do (
+    if exist "%%~D" rd /s /q "%%~D" >nul 2>&1
 )
 
-del /s /f /q "%USERPROFILE%\Local Settings\History"\*.*
-rd /s /q "%USERPROFILE%\Local Settings\History"
-md "%USERPROFILE%\Local Settings\History"
-
-del /s /f /q "%USERPROFILE%\Local Settings\Temporary Internet Files"\*.*
-rd /s /q "%USERPROFILE%\Local Settings\Temporary Internet Files"
-md "%USERPROFILE%\Local Settings\Temporary Internet Files"
-
-del /s /f /q "%USERPROFILE%\Local Settings\Temp"\*.*
-rd /s /q "%USERPROFILE%\Local Settings\Temp"
-md "%USERPROFILE%\Local Settings\Temp"
-
-del /s /f /q "%USERPROFILE%\Recent"\*.*
-rd /s /q "%USERPROFILE%\Recent"
-md "%USERPROFILE%\Recent"
-
-del /s /f /q "%USERPROFILE%\Cookies"\*.*
-rd /s /q "%USERPROFILE%\Cookies"
-md "%USERPROFILE%\Cookies"
-
-for /f %%a in ('wmic cpu get L2CacheSize ^| findstr /r "[0-9][0-9]"') do (
-    set /a l2c=%%a
-    set /a sum1=%%a
+rem Limpa cache de todos os perfis de navegador, sem remover cookies, senhas ou favoritos.
+for /d %%U in ("%LOCALAPPDATA%\Google\Chrome\User Data\*") do (
+    for %%C in ("%%~fU\Cache" "%%~fU\Code Cache" "%%~fU\GPUCache") do (
+        if exist "%%~C" rd /s /q "%%~C" >nul 2>&1
+    )
+)
+for /d %%U in ("%LOCALAPPDATA%\Microsoft\Edge\User Data\*") do (
+    for %%C in ("%%~fU\Cache" "%%~fU\Code Cache" "%%~fU\GPUCache") do (
+        if exist "%%~C" rd /s /q "%%~C" >nul 2>&1
+    )
+)
+for /d %%F in ("%APPDATA%\Mozilla\Firefox\Profiles\*") do (
+    if exist "%%~fF\cache2" rd /s /q "%%~fF\cache2" >nul 2>&1
 )
 
-for /f %%a in ('wmic cpu get L3CacheSize ^| findstr /r "[0-9][0-9]"') do (
-    set /a l3c=%%a
-    set /a sum2=%%a
+echo [6/7] Removendo dumps e temporarios restantes do AppData...
+for %%P in (
+    "%LOCALAPPDATA%\*.dmp"
+    "%LOCALAPPDATA%\Temp\*.tmp"
+    "%APPDATA%\Temp\*.tmp"
+    "%USERPROFILE%\AppData\LocalLow\Temp\*.tmp"
+) do (
+    if exist %%~P del /s /f /q "%%~P" >nul 2>&1
 )
 
-RD /S /Q %temp%
-MKDIR %temp%
-takeown /f "%temp%" /r /d y
-takeown /f "C:\Windows\Temp" /r /d y
-RD /S /Q C:\Windows\Temp
-MKDIR C:\Windows\Temp
-takeown /f "C:\Windows\Temp" /r /d y
-takeown /f %temp% /r /d y
-takeown /A /R /D Y /F C:\Users\%USERNAME%\AppData\Local\Temp\
-icacls C:\Users\%USERNAME%\AppData\Local\Temp\ /grant administradores:F /T /C
-rmdir /q /s C:\Users\%USERNAME%\AppData\Local\Temp\
-md C:\Users\%USERNAME%\AppData\Local\Temp\
-takeown /A /R /D Y /F C:\windows\temp
-icacls C:\windows\temp /grant administradores:F /T /C
-rmdir /q /s c:\windows\temp
-md c:\windows\temp
-cls
+echo [7/7] Reiniciando servicos e finalizando...
+net start wuauserv >nul 2>&1
+net start UsoSvc >nul 2>&1
 
-del c:\windows\logs\cbs\*.log
-del C:\Windows\Logs\MoSetup\*.log
-del C:\Windows\Panther\*.log /s /q
-del C:\Windows\inf\*.log /s /q
-del C:\Windows\logs\*.log /s /q
-del C:\Windows\SoftwareDistribution\*.log /s /q
-del C:\Windows\Microsoft.NET\*.log /s /q
-del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\WebCache\*.log /s /q
-del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\SettingSync\*.log /s /q
-del C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\Explorer\ThumbCacheToDelete\*.tmp /s /q
-del C:\Users\%USERNAME%\AppData\Local\Microsoft\"Terminal Server Client"\Cache\*.bin /s /q
-rmdir /q /s C:\Users\%USERNAME%\AppData\Local\Microsoft\Windows\INetCache\
-
-rd /s /q C:\Windows\SoftwareDistribution
-md C:\Windows\SoftwareDistribution
-
-cd/
-del *.log /a /s /q /f
-@echo off
-echo Limpeza concluida.
+echo.
+echo Limpeza profunda concluida com sucesso!
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
@@ -1588,29 +1473,63 @@ if %errorlevel% equ 0 (
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
-:activate_processor_performance_boost_mode
+:intel_i5_performance_mode
 cls
-REM
-set "regKey=HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\be337238-0d82-4146-a960-4f3749d470c7"
+echo Aplicando modo Intel i5-13400F para desempenho maximo com resfriamento ativo...
 
-REM
-set "valueName=Attributes"
-set "valueData=2"
+echo 1/4 - Ativando plano de energia de alto desempenho.
+powercfg /setactive scheme_min >nul 2>&1
 
-REM
-reg add "%regKey%" /v "%valueName%" /t REG_DWORD /d %valueData% /f
+echo 2/4 - Ajustando porcentagens de CPU para usar todo potencial.
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMAX 100 >nul 2>&1
+powercfg /setdcvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMAX 100 >nul 2>&1
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMIN 10 >nul 2>&1
+powercfg /setdcvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMIN 10 >nul 2>&1
 
-REM
+echo 3/4 - Priorizando resfriamento ativo para evitar aquecimento excessivo.
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR 94d3a615-a899-4ac5-ae2b-e4d8f634367f 0 >nul 2>&1
+powercfg /setdcvalueindex scheme_min SUB_PROCESSOR 94d3a615-a899-4ac5-ae2b-e4d8f634367f 0 >nul 2>&1
+
+echo 4/4 - Confirmando configuracoes de desempenho do processador.
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMIN 10 >nul 2>&1
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMAX 100 >nul 2>&1
+
 if %errorlevel% equ 0 (
-    echo Valor de "%valueName%" alterado para %valueData% com sucesso!
+    echo Modo de desempenho aplicado com sucesso!
 ) else (
-    echo Ocorreu um erro ao tentar modificar o valor.
+    echo Houve um problema ao aplicar as configuracoes.
 )
 
-REM Ativa o plano de energia "Alto desempenho máximo"
-powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
-powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61
+pause
+goto menu
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:cpu_unpark_mode
+cls
+echo Aplicando perfil de CPU nunca dormir e unpark com resfriamento ativo...
 
+echo 1/5 - Ativando plano de alto desempenho.
+powercfg /setactive scheme_min >nul 2>&1
+
+echo 2/5 - Definindo uso total de CPU.
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMIN 100 >nul 2>&1
+powercfg /setdcvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMIN 100 >nul 2>&1
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMAX 100 >nul 2>&1
+powercfg /setdcvalueindex scheme_min SUB_PROCESSOR PROCTHROTTLEMAX 100 >nul 2>&1
+
+echo 3/5 - Tentando desativar core parking e manter todos os nucleos ativos.
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR 0cc5b647-c1df-4637-891a-dec35c318583 0 >nul 2>&1
+powercfg /setdcvalueindex scheme_min SUB_PROCESSOR 0cc5b647-c1df-4637-891a-dec35c318583 0 >nul 2>&1
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR 893dee8e-2bef-41e0-89c6-b55d0929964c 0 >nul 2>&1
+powercfg /setdcvalueindex scheme_min SUB_PROCESSOR 893dee8e-2bef-41e0-89c6-b55d0929964c 0 >nul 2>&1
+
+echo 4/5 - Priorizando resfriamento ativo para evitar aquecimento excessivo.
+powercfg /setacvalueindex scheme_min SUB_PROCESSOR 94d3a615-a899-4ac5-ae2b-e4d8f634367f 0 >nul 2>&1
+powercfg /setdcvalueindex scheme_min SUB_PROCESSOR 94d3a615-a899-4ac5-ae2b-e4d8f634367f 0 >nul 2>&1
+
+echo 5/5 - Desativando power throttling do Windows.
+Reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v "PowerThrottlingOff" /t REG_DWORD /d "1" /f >nul 2>&1
+
+echo Perfil de CPU aplicado. Mantenha refrigeração adequada e monitore a temperatura.
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
