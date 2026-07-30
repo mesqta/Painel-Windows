@@ -352,15 +352,29 @@ goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :limpar_arquivos
 cls
-echo Limpeza profunda de temporarios, caches e arquivos dispensaveis...
+echo ==========================================================
+echo   LIMPEZA PROFUNDA - Temporarios, Caches e Lixo do Sistema
+echo ==========================================================
 echo.
+echo Isto vai apagar arquivos temporarios, caches de apps/navegadores,
+echo dumps de erro, logs antigos e a Lixeira. Nenhum documento pessoal,
+echo senha, cookie ou favorito e removido.
+echo.
+choice /C SN /M "Deseja continuar"
+if errorlevel 2 goto menu
 
-echo [1/7] Parando servicos de Windows Update e USB...
+echo.
+echo Medindo espaco livre atual em C:...
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "(Get-PSDrive C).Free"`) do set "FREEBEFORE=%%A"
+
+echo [1/9] Parando servicos de Windows Update, BITS e Deliv. Optimization...
 net stop wuauserv >nul 2>&1
 net stop UsoSvc >nul 2>&1
+net stop bits >nul 2>&1
+net stop dosvc >nul 2>&1
 timeout /t 1 >nul 2>&1
 
-echo [2/7] Limpando temporarios e caches de sistema...
+echo [2/9] Limpando temporarios do usuario e do sistema (%%TEMP%% / %%APPDATA%% / Windows)...
 for %%P in (
     "%TEMP%\*.*"
     "%LOCALAPPDATA%\Temp\*.*"
@@ -368,11 +382,14 @@ for %%P in (
     "%USERPROFILE%\AppData\LocalLow\Temp\*.*"
     "%WINDIR%\Temp\*.*"
     "%ProgramData%\Temp\*.*"
+    "%WINDIR%\Prefetch\*.*"
     "%WINDIR%\SoftwareDistribution\Download\*.*"
     "%LOCALAPPDATA%\Microsoft\Windows\WebCache\*.*"
     "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db"
+    "%LOCALAPPDATA%\Microsoft\Windows\Explorer\iconcache_*.db"
     "%LOCALAPPDATA%\Microsoft\Windows\Explorer\ThumbCacheToDelete\*.tmp"
     "%LOCALAPPDATA%\Microsoft\Windows\INetCache\*.*"
+    "%LOCALAPPDATA%\Microsoft\Windows\INetCookies\*.*"
     "%LOCALAPPDATA%\Microsoft\OneDrive\*\cache\*.*"
     "%LOCALAPPDATA%\D3DSCache\*.*"
     "%LOCALAPPDATA%\CrashDumps\*.dmp"
@@ -383,10 +400,16 @@ for %%P in (
     "%ProgramData%\Microsoft\Windows\WER\ReportQueue\*.*"
     "%ProgramData%\Microsoft\Windows\WER\Temp\*.*"
     "%ProgramData%\Microsoft\Windows\DeliveryOptimization\Cache\*.*"
+    "%WINDIR%\Minidump\*.dmp"
+    "%WINDIR%\memory.dmp"
+    "%WINDIR%\Logs\CBS\*.log"
+    "%WINDIR%\Logs\DISM\*.log"
+    "%WINDIR%\Logs\*.log"
 ) do (
     if exist %%~P del /s /f /q "%%~P" >nul 2>&1
 )
 
+echo [3/9] Removendo pastas de cache reconstruiveis (WebCache, INetCache, DeliveryOptimization etc)...
 for %%D in (
     "%WINDIR%\SoftwareDistribution\Download"
     "%LOCALAPPDATA%\Microsoft\Windows\WebCache"
@@ -399,25 +422,22 @@ for %%D in (
     if not exist "%%~D" md "%%~D" >nul 2>&1
 )
 
-if exist "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" del /f /q "%LOCALAPPDATA%\Microsoft\Windows\Explorer\thumbcache_*.db" >nul 2>&1
-
-echo [3/7] Limpando logs de sistema, atualizacoes e relatorios de erro...
+echo [4/9] Limpando logs de sistema, atualizacoes antigas e Windows.old...
 if exist "%WINDIR%\SoftwareDistribution" rd /s /q "%WINDIR%\SoftwareDistribution" >nul 2>&1
 md "%WINDIR%\SoftwareDistribution" >nul 2>&1
 if exist "C:\Windows.old" rd /s /q "C:\Windows.old" >nul 2>&1
-
-del /s /f /q "%WINDIR%\Logs\*.log" >nul 2>&1
 if exist "%WINDIR%\Panther" del /s /f /q "%WINDIR%\Panther\*.log" >nul 2>&1
 if exist "%WINDIR%\INF" del /s /f /q "%WINDIR%\INF\*.log" >nul 2>&1
 if exist "%LOCALAPPDATA%\Microsoft\Windows\WebCache" del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\WebCache\*.log" >nul 2>&1
 if exist "%LOCALAPPDATA%\Microsoft\Windows\SettingSync" del /s /f /q "%LOCALAPPDATA%\Microsoft\Windows\SettingSync\*.log" >nul 2>&1
 
-echo [4/7] Limpando lixeira e caches de rede...
+echo [5/9] Esvaziando a Lixeira (todas as unidades) e limpando cache DNS...
+powershell -NoProfile -Command "Clear-RecycleBin -Force -ErrorAction SilentlyContinue" >nul 2>&1
 rd /s /q C:\$Recycle.bin >nul 2>&1
 md C:\$Recycle.bin >nul 2>&1
 ipconfig /flushdns >nul 2>&1
 
-echo [5/7] Limpando caches recriaveis do AppData...
+echo [6/9] Limpando caches de apps comuns em %%APPDATA%%/%%LOCALAPPDATA%% (Discord, Spotify, Steam, Teams, Zoom, Slack, VSCode, GPU/Shader cache)...
 for %%D in (
     "%LOCALAPPDATA%\Discord\Cache"
     "%LOCALAPPDATA%\Discord\Code Cache"
@@ -431,15 +451,33 @@ for %%D in (
     "%LOCALAPPDATA%\Microsoft\Teams\Cache"
     "%LOCALAPPDATA%\Microsoft\Teams\Code Cache"
     "%LOCALAPPDATA%\Microsoft\Teams\GPUCache"
+    "%APPDATA%\Zoom\bin\cache"
+    "%APPDATA%\Zoom\data\Cache"
+    "%APPDATA%\Slack\Cache"
+    "%APPDATA%\Slack\Code Cache"
+    "%APPDATA%\Slack\GPUCache"
+    "%APPDATA%\Code\Cache"
+    "%APPDATA%\Code\CachedData"
+    "%APPDATA%\Code\Code Cache"
+    "%APPDATA%\Code\GPUCache"
     "%LOCALAPPDATA%\NVIDIA\DXCache"
     "%LOCALAPPDATA%\NVIDIA\GLCache"
+    "%LOCALAPPDATA%\NVIDIA Corporation\NV_Cache"
     "%LOCALAPPDATA%\AMD\DxCache"
     "%LOCALAPPDATA%\AMD\GLCache"
+    "%LOCALAPPDATA%\Temp"
 ) do (
     if exist "%%~D" rd /s /q "%%~D" >nul 2>&1
 )
 
-rem Limpa cache de todos os perfis de navegador, sem remover cookies, senhas ou favoritos.
+echo [7/9] Limpando cache de gerenciadores de pacote (npm, yarn, pip, NuGet), se instalados...
+if exist "%APPDATA%\npm-cache" rd /s /q "%APPDATA%\npm-cache" >nul 2>&1
+if exist "%LOCALAPPDATA%\Yarn\Cache" rd /s /q "%LOCALAPPDATA%\Yarn\Cache" >nul 2>&1
+if exist "%LOCALAPPDATA%\pip\cache" rd /s /q "%LOCALAPPDATA%\pip\cache" >nul 2>&1
+if exist "%USERPROFILE%\.nuget\packages\.tools" rd /s /q "%USERPROFILE%\.nuget\packages\.tools" >nul 2>&1
+where npm >nul 2>&1 && call npm cache clean --force >nul 2>&1
+
+echo [8/9] Limpando cache dos navegadores (Chrome, Edge, Firefox, Brave, Opera) sem apagar senhas, cookies ou favoritos...
 for /d %%U in ("%LOCALAPPDATA%\Google\Chrome\User Data\*") do (
     for %%C in ("%%~fU\Cache" "%%~fU\Code Cache" "%%~fU\GPUCache") do (
         if exist "%%~C" rd /s /q "%%~C" >nul 2>&1
@@ -450,26 +488,45 @@ for /d %%U in ("%LOCALAPPDATA%\Microsoft\Edge\User Data\*") do (
         if exist "%%~C" rd /s /q "%%~C" >nul 2>&1
     )
 )
+for /d %%U in ("%LOCALAPPDATA%\BraveSoftware\Brave-Browser\User Data\*") do (
+    for %%C in ("%%~fU\Cache" "%%~fU\Code Cache" "%%~fU\GPUCache") do (
+        if exist "%%~C" rd /s /q "%%~C" >nul 2>&1
+    )
+)
+if exist "%APPDATA%\Opera Software\Opera Stable\Cache" rd /s /q "%APPDATA%\Opera Software\Opera Stable\Cache" >nul 2>&1
 for /d %%F in ("%APPDATA%\Mozilla\Firefox\Profiles\*") do (
     if exist "%%~fF\cache2" rd /s /q "%%~fF\cache2" >nul 2>&1
+    if exist "%%~fF\startupCache" rd /s /q "%%~fF\startupCache" >nul 2>&1
 )
 
-echo [6/7] Removendo dumps e temporarios restantes do AppData...
+echo [9/9] Removendo dumps e temporarios remanescentes...
 for %%P in (
     "%LOCALAPPDATA%\*.dmp"
     "%LOCALAPPDATA%\Temp\*.tmp"
     "%APPDATA%\Temp\*.tmp"
     "%USERPROFILE%\AppData\LocalLow\Temp\*.tmp"
+    "%USERPROFILE%\Downloads\*.tmp"
 ) do (
     if exist %%~P del /s /f /q "%%~P" >nul 2>&1
 )
 
-echo [7/7] Reiniciando servicos e finalizando...
+echo Reiniciando servicos essenciais...
+net start bits >nul 2>&1
 net start wuauserv >nul 2>&1
 net start UsoSvc >nul 2>&1
+net start dosvc >nul 2>&1
 
 echo.
-echo Limpeza profunda concluida com sucesso!
+echo Calculando espaco liberado...
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "(Get-PSDrive C).Free"`) do set "FREEAFTER=%%A"
+for /f "usebackq delims=" %%A in (`powershell -NoProfile -Command "[math]::Round((%FREEAFTER%-%FREEBEFORE%)/1MB,1)"`) do set "FREED_MB=%%A"
+
+echo.
+echo ==========================================================
+echo   Limpeza profunda concluida com sucesso!
+echo   Espaco liberado em C: aproximadamente %FREED_MB% MB
+echo   (numero pode ser menor/zero se o Windows ja recriou temporarios)
+echo ==========================================================
 pause
 goto menu
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
