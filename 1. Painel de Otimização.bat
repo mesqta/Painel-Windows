@@ -48,6 +48,230 @@ echo Fechando o programa...
 pause
 exit
 :: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
+:limpar_arquivos
+cls
+setlocal EnableExtensions DisableDelayedExpansion
+echo ============================================================
+echo                  LIMPEZA ROBUSTA E SEGURA
+echo ============================================================
+echo.
+echo Serao removidos arquivos temporarios, relatorios de erro,
+echo caches descartaveis de aplicativos e a Lixeira.
+echo.
+echo Nao serao removidos documentos, Downloads, senhas, cookies,
+echo Windows.old, arquivos ESD, drivers, Prefetch ou pontos de restauracao.
+echo Arquivos que estiverem em uso serao ignorados automaticamente.
+echo.
+echo Feche navegadores e aplicativos para liberar mais arquivos.
+choice /C SN /N /M "Deseja iniciar a limpeza? [S/N]: "
+if errorlevel 2 goto limpeza_cancelada
+
+set "PW_ADMIN=0"
+fltmc >nul 2>&1
+if not errorlevel 1 set "PW_ADMIN=1"
+
+echo.
+echo [1/9] Limpando temporarios do usuario...
+call :limpar_conteudo "%TEMP%" "Pasta TEMP do usuario"
+if /I not "%TEMP%"=="%LOCALAPPDATA%\Temp" call :limpar_conteudo "%LOCALAPPDATA%\Temp" "AppData Local Temp"
+call :limpar_conteudo "%APPDATA%\Temp" "AppData Roaming Temp"
+
+echo.
+echo [2/9] Limpando caches seguros em AppData...
+call :limpar_conteudo "%APPDATA%\discord\Cache" "Cache do Discord"
+call :limpar_conteudo "%APPDATA%\discord\Code Cache" "Code Cache do Discord"
+call :limpar_conteudo "%APPDATA%\discord\GPUCache" "GPU Cache do Discord"
+call :limpar_conteudo "%APPDATA%\Code\Cache" "Cache do Visual Studio Code"
+call :limpar_conteudo "%APPDATA%\Code\CachedData" "Dados compilados do Visual Studio Code"
+call :limpar_conteudo "%APPDATA%\Code\Code Cache" "Code Cache do Visual Studio Code"
+call :limpar_conteudo "%APPDATA%\Code\GPUCache" "GPU Cache do Visual Studio Code"
+call :limpar_conteudo "%APPDATA%\Microsoft\Teams\Cache" "Cache do Microsoft Teams"
+call :limpar_conteudo "%APPDATA%\Microsoft\Teams\Code Cache" "Code Cache do Microsoft Teams"
+call :limpar_conteudo "%APPDATA%\Microsoft\Teams\GPUCache" "GPU Cache do Microsoft Teams"
+call :limpar_conteudo "%APPDATA%\Opera Software\Opera Stable\Cache" "Cache do Opera"
+call :limpar_conteudo "%APPDATA%\Opera Software\Opera Stable\Code Cache" "Code Cache do Opera"
+call :limpar_conteudo "%APPDATA%\Opera Software\Opera Stable\GPUCache" "GPU Cache do Opera"
+call :limpar_conteudo "%APPDATA%\Opera Software\Opera GX Stable\Cache" "Cache do Opera GX"
+call :limpar_conteudo "%APPDATA%\Opera Software\Opera GX Stable\Code Cache" "Code Cache do Opera GX"
+call :limpar_conteudo "%APPDATA%\Opera Software\Opera GX Stable\GPUCache" "GPU Cache do Opera GX"
+
+echo.
+echo [3/9] Limpando apenas o cache dos navegadores...
+call :limpar_cache_chromium "%LOCALAPPDATA%\Google\Chrome\User Data" "Google Chrome"
+call :limpar_cache_chromium "%LOCALAPPDATA%\Microsoft\Edge\User Data" "Microsoft Edge"
+call :limpar_cache_chromium "%LOCALAPPDATA%\BraveSoftware\Brave-Browser\User Data" "Brave"
+call :limpar_cache_chromium "%LOCALAPPDATA%\Vivaldi\User Data" "Vivaldi"
+call :limpar_cache_firefox "%LOCALAPPDATA%\Mozilla\Firefox\Profiles" "Mozilla Firefox"
+
+echo.
+echo [4/9] Limpando relatorios de falha do usuario...
+call :limpar_conteudo "%LOCALAPPDATA%\CrashDumps" "CrashDumps do usuario"
+call :limpar_conteudo "%LOCALAPPDATA%\Microsoft\Windows\WER" "Relatorios de erro do usuario"
+
+echo.
+echo [5/9] Esvaziando a Lixeira...
+powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Clear-RecycleBin -Force -ErrorAction SilentlyContinue" >nul 2>&1
+echo   - Lixeira processada em todas as unidades acessiveis
+
+if "%PW_ADMIN%"=="1" goto limpeza_com_admin
+echo.
+echo [6/9] Limpeza do sistema ignorada: painel sem privilegios de Administrador.
+echo [7/9] Categorias do Windows ignoradas: painel sem privilegios de Administrador.
+echo [8/9] Cache de entrega ignorado: painel sem privilegios de Administrador.
+echo [9/9] Componentes antigos ignorados: painel sem privilegios de Administrador.
+echo.
+echo Para uma limpeza completa, execute este arquivo como Administrador.
+goto limpeza_concluida
+
+:limpeza_com_admin
+echo.
+echo [6/9] Limpando temporarios e relatorios de erro do Windows...
+call :limpar_conteudo "%SystemRoot%\Temp" "Temporarios do Windows"
+call :limpar_conteudo "%ProgramData%\Microsoft\Windows\WER\ReportArchive" "Relatorios de erro arquivados"
+call :limpar_conteudo "%ProgramData%\Microsoft\Windows\WER\ReportQueue" "Fila de relatorios de erro"
+call :limpar_conteudo "%ProgramData%\Microsoft\Windows\WER\Temp" "Temporarios de relatorios de erro"
+call :limpar_conteudo "%SystemRoot%\Minidump" "Minidumps antigos"
+del /f /q /a "%SystemRoot%\MEMORY.DMP" >nul 2>&1
+
+echo.
+echo [7/9] Limpando categorias temporarias catalogadas pelo Windows...
+echo Esta etapa inclui a Limpeza do Windows Update e pode demorar.
+call :executar_cleanmgr_seguro
+
+echo.
+echo [8/9] Limpando cache da Otimizacao de Entrega...
+powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "if (Get-Command Delete-DeliveryOptimizationCache -ErrorAction SilentlyContinue) { Delete-DeliveryOptimizationCache -Force -ErrorAction SilentlyContinue }" >nul 2>&1
+echo   - Cache de entrega processado
+
+echo.
+echo [9/9] Removendo componentes substituidos do Windows...
+echo Esta etapa oficial do DISM pode demorar alguns minutos.
+Dism.exe /Online /Cleanup-Image /StartComponentCleanup /NoRestart
+if errorlevel 1 echo Aviso: o DISM nao concluiu a limpeza de componentes.
+
+:limpeza_concluida
+echo.
+echo ============================================================
+echo Limpeza concluida. Arquivos bloqueados permaneceram no local.
+echo Reiniciar o computador pode liberar temporarios ainda em uso.
+echo Reabra Configuracoes - Armazenamento para atualizar o tamanho exibido.
+echo ============================================================
+echo.
+pause
+endlocal
+goto menu
+
+:limpeza_cancelada
+echo.
+echo Limpeza cancelada. Nenhum arquivo foi removido.
+pause
+endlocal
+goto menu
+
+:: Remove somente o conteudo de uma pasta previamente aprovada.
+:: Recusa caminhos raiz caso alguma variavel de ambiente esteja incorreta.
+:limpar_conteudo
+setlocal EnableExtensions DisableDelayedExpansion
+set "PW_ALVO=%~1"
+set "PW_DESCRICAO=%~2"
+if not defined PW_ALVO goto limpar_conteudo_fim
+for %%I in ("%PW_ALVO%") do set "PW_ALVO=%%~fI"
+if not exist "%PW_ALVO%\" goto limpar_conteudo_fim
+if /I "%PW_ALVO%"=="%SystemDrive%\" goto limpar_conteudo_bloqueado
+if /I "%PW_ALVO%"=="%SystemRoot%" goto limpar_conteudo_bloqueado
+if /I "%PW_ALVO%"=="%USERPROFILE%" goto limpar_conteudo_bloqueado
+if /I "%PW_ALVO%"=="%APPDATA%" goto limpar_conteudo_bloqueado
+if /I "%PW_ALVO%"=="%LOCALAPPDATA%" goto limpar_conteudo_bloqueado
+echo   - %PW_DESCRICAO%
+del /f /q /a "%PW_ALVO%\*" >nul 2>&1
+for /d %%D in ("%PW_ALVO%\*") do rd /s /q "%%~fD" >nul 2>&1
+goto limpar_conteudo_fim
+
+:limpar_conteudo_bloqueado
+echo   - BLOQUEADO por seguranca: "%PW_ALVO%"
+
+:limpar_conteudo_fim
+endlocal
+exit /b
+
+:: Chromium guarda caches separados em cada perfil do navegador.
+:limpar_cache_chromium
+setlocal EnableExtensions DisableDelayedExpansion
+set "PW_BASE=%~1"
+set "PW_NAVEGADOR=%~2"
+if not exist "%PW_BASE%\" goto limpar_cache_chromium_fim
+for /d %%P in ("%PW_BASE%\*") do call :limpar_conteudo "%%~fP\Cache" "Cache do %PW_NAVEGADOR%"
+for /d %%P in ("%PW_BASE%\*") do call :limpar_conteudo "%%~fP\Code Cache" "Code Cache do %PW_NAVEGADOR%"
+for /d %%P in ("%PW_BASE%\*") do call :limpar_conteudo "%%~fP\GPUCache" "GPU Cache do %PW_NAVEGADOR%"
+:limpar_cache_chromium_fim
+endlocal
+exit /b
+
+:: Firefox mantem um cache descartavel em cada perfil.
+:limpar_cache_firefox
+setlocal EnableExtensions DisableDelayedExpansion
+set "PW_BASE=%~1"
+set "PW_NAVEGADOR=%~2"
+if not exist "%PW_BASE%\" goto limpar_cache_firefox_fim
+for /d %%P in ("%PW_BASE%\*") do call :limpar_conteudo "%%~fP\cache2" "Cache do %PW_NAVEGADOR%"
+:limpar_cache_firefox_fim
+endlocal
+exit /b
+
+:: Executa o Limpador de Disco apenas nas categorias consideradas seguras.
+:: O identificador 9274 e temporario e nao altera as escolhas normais do usuario.
+:executar_cleanmgr_seguro
+setlocal EnableExtensions DisableDelayedExpansion
+if not exist "%SystemRoot%\System32\cleanmgr.exe" goto cleanmgr_indisponivel
+call :alternar_categorias_cleanmgr marcar
+start "" /wait "%SystemRoot%\System32\cleanmgr.exe" /sagerun:9274
+set "PW_CLEANMGR_ERRO=%ERRORLEVEL%"
+call :alternar_categorias_cleanmgr remover
+if not "%PW_CLEANMGR_ERRO%"=="0" echo   - Aviso: o Limpador de Disco nao concluiu todas as categorias.
+endlocal
+exit /b
+
+:cleanmgr_indisponivel
+echo   - Limpador de Disco nao esta disponivel nesta versao do Windows.
+endlocal
+exit /b
+
+:: Downloads, Windows.old, ESD, drivers, miniaturas e shaders ficam fora da lista.
+:alternar_categorias_cleanmgr
+for %%C in (
+    "Active Setup Temp Folders"
+    "BranchCache"
+    "Delivery Optimization Files"
+    "Diagnostic Data Viewer database files"
+    "Downloaded Program Files"
+    "Feedback Hub Archive log files"
+    "Internet Cache Files"
+    "Recycle Bin"
+    "RetailDemo Offline Content"
+    "Setup Log Files"
+    "System error memory dump files"
+    "System error minidump files"
+    "Temporary Files"
+    "Temporary Setup Files"
+    "Update Cleanup"
+    "Upgrade Discarded Files"
+    "Windows Defender"
+    "Windows Error Reporting Files"
+    "Windows Reset Log Files"
+    "Windows Upgrade Log Files"
+) do call :categoria_cleanmgr_%~1 "%%~C"
+exit /b
+
+:categoria_cleanmgr_marcar
+reg.exe query "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\%~1" >nul 2>&1
+if errorlevel 1 exit /b
+reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\%~1" /v StateFlags9274 /t REG_DWORD /d 2 /f >nul 2>&1
+exit /b
+
+:categoria_cleanmgr_remover
+reg.exe delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VolumeCaches\%~1" /v StateFlags9274 /f >nul 2>&1
+exit /b
+:: -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- ::
 :desativar_servicos
 cls
 echo Desabilitando o servico SysMain (SuperFetch) e outros servicos...
