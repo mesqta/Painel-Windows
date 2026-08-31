@@ -58,10 +58,11 @@ echo                  LIMPEZA ROBUSTA E SEGURA
 echo ============================================================
 echo.
 echo Serao removidos arquivos temporarios, relatorios de erro,
-echo caches descartaveis de aplicativos e a Lixeira.
+echo caches descartaveis de aplicativos, miniaturas, cache DNS e a Lixeira.
 echo.
 echo Nao serao removidos documentos, Downloads, senhas, cookies,
-echo Windows.old, arquivos ESD, drivers, Prefetch ou pontos de restauracao.
+echo Windows.old, arquivos ESD, drivers, Prefetch, logs de eventos
+echo ou pontos de restauracao.
 echo Arquivos que estiverem em uso serao ignorados automaticamente.
 echo.
 echo Feche navegadores e aplicativos para liberar mais arquivos.
@@ -83,6 +84,9 @@ echo [2/9] Limpando caches seguros em AppData...
 call :limpar_conteudo "%APPDATA%\discord\Cache" "Cache do Discord"
 call :limpar_conteudo "%APPDATA%\discord\Code Cache" "Code Cache do Discord"
 call :limpar_conteudo "%APPDATA%\discord\GPUCache" "GPU Cache do Discord"
+call :limpar_conteudo "%LOCALAPPDATA%\Discord\Cache" "Cache local do Discord"
+call :limpar_conteudo "%LOCALAPPDATA%\Discord\Code Cache" "Code Cache local do Discord"
+call :limpar_conteudo "%LOCALAPPDATA%\Discord\GPUCache" "GPU Cache local do Discord"
 call :limpar_conteudo "%APPDATA%\Code\Cache" "Cache do Visual Studio Code"
 call :limpar_conteudo "%APPDATA%\Code\CachedData" "Dados compilados do Visual Studio Code"
 call :limpar_conteudo "%APPDATA%\Code\Code Cache" "Code Cache do Visual Studio Code"
@@ -90,6 +94,11 @@ call :limpar_conteudo "%APPDATA%\Code\GPUCache" "GPU Cache do Visual Studio Code
 call :limpar_conteudo "%APPDATA%\Microsoft\Teams\Cache" "Cache do Microsoft Teams"
 call :limpar_conteudo "%APPDATA%\Microsoft\Teams\Code Cache" "Code Cache do Microsoft Teams"
 call :limpar_conteudo "%APPDATA%\Microsoft\Teams\GPUCache" "GPU Cache do Microsoft Teams"
+call :limpar_conteudo "%LOCALAPPDATA%\Microsoft\Teams\Cache" "Cache local do Microsoft Teams"
+call :limpar_conteudo "%LOCALAPPDATA%\Microsoft\Teams\Code Cache" "Code Cache local do Microsoft Teams"
+call :limpar_conteudo "%LOCALAPPDATA%\Microsoft\Teams\GPUCache" "GPU Cache local do Microsoft Teams"
+call :limpar_conteudo "%LOCALAPPDATA%\Steam\htmlcache" "Cache HTML do Steam"
+for /d %%D in ("%LOCALAPPDATA%\Microsoft\OneDrive\*") do call :limpar_conteudo "%%~fD\cache" "Cache do OneDrive"
 call :limpar_conteudo "%APPDATA%\Opera Software\Opera Stable\Cache" "Cache do Opera"
 call :limpar_conteudo "%APPDATA%\Opera Software\Opera Stable\Code Cache" "Code Cache do Opera"
 call :limpar_conteudo "%APPDATA%\Opera Software\Opera Stable\GPUCache" "GPU Cache do Opera"
@@ -109,11 +118,14 @@ echo.
 echo [4/9] Limpando relatorios de falha do usuario...
 call :limpar_conteudo "%LOCALAPPDATA%\CrashDumps" "CrashDumps do usuario"
 call :limpar_conteudo "%LOCALAPPDATA%\Microsoft\Windows\WER" "Relatorios de erro do usuario"
+call :limpar_arquivos_padrao "%LOCALAPPDATA%\Microsoft\Windows\Explorer" "thumbcache_*.db" "Cache de miniaturas do Windows"
 
 echo.
-echo [5/9] Esvaziando a Lixeira...
+echo [5/9] Esvaziando a Lixeira e renovando o cache DNS...
 powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Clear-RecycleBin -Force -ErrorAction SilentlyContinue" >nul 2>&1
 echo   - Lixeira processada em todas as unidades acessiveis
+ipconfig.exe /flushdns >nul 2>&1
+if errorlevel 1 (echo   - Aviso: nao foi possivel limpar o cache DNS.) else echo   - Cache DNS limpo
 
 if "%PW_ADMIN%"=="1" goto limpeza_com_admin
 echo.
@@ -134,6 +146,8 @@ call :limpar_conteudo "%ProgramData%\Microsoft\Windows\WER\ReportQueue" "Fila de
 call :limpar_conteudo "%ProgramData%\Microsoft\Windows\WER\Temp" "Temporarios de relatorios de erro"
 call :limpar_conteudo "%SystemRoot%\Minidump" "Minidumps antigos"
 del /f /q /a "%SystemRoot%\MEMORY.DMP" >nul 2>&1
+for /d %%F in ("%SystemRoot%\Microsoft.NET\Framework\v*") do call :limpar_conteudo "%%~fF\Temporary ASP.NET Files" "Temporarios do ASP.NET Framework"
+for /d %%F in ("%SystemRoot%\Microsoft.NET\Framework64\v*") do call :limpar_conteudo "%%~fF\Temporary ASP.NET Files" "Temporarios do ASP.NET Framework 64 bits"
 
 echo.
 echo [7/9] Limpando categorias temporarias catalogadas pelo Windows...
@@ -193,6 +207,32 @@ goto limpar_conteudo_fim
 echo   - BLOQUEADO por seguranca: "%PW_ALVO%"
 
 :limpar_conteudo_fim
+endlocal
+exit /b
+
+:: Remove arquivos que correspondam a um padrao dentro de uma pasta aprovada.
+:limpar_arquivos_padrao
+setlocal EnableExtensions DisableDelayedExpansion
+set "PW_ALVO=%~1"
+set "PW_PADRAO=%~2"
+set "PW_DESCRICAO=%~3"
+if not defined PW_ALVO goto limpar_arquivos_padrao_fim
+if not defined PW_PADRAO goto limpar_arquivos_padrao_fim
+for %%I in ("%PW_ALVO%") do set "PW_ALVO=%%~fI"
+if not exist "%PW_ALVO%\" goto limpar_arquivos_padrao_fim
+if /I "%PW_ALVO%"=="%SystemDrive%\" goto limpar_arquivos_padrao_bloqueado
+if /I "%PW_ALVO%"=="%SystemRoot%" goto limpar_arquivos_padrao_bloqueado
+if /I "%PW_ALVO%"=="%USERPROFILE%" goto limpar_arquivos_padrao_bloqueado
+if /I "%PW_ALVO%"=="%APPDATA%" goto limpar_arquivos_padrao_bloqueado
+if /I "%PW_ALVO%"=="%LOCALAPPDATA%" goto limpar_arquivos_padrao_bloqueado
+echo   - %PW_DESCRICAO%
+del /f /q /a "%PW_ALVO%\%PW_PADRAO%" >nul 2>&1
+goto limpar_arquivos_padrao_fim
+
+:limpar_arquivos_padrao_bloqueado
+echo   - BLOQUEADO por seguranca: "%PW_ALVO%\%PW_PADRAO%"
+
+:limpar_arquivos_padrao_fim
 endlocal
 exit /b
 
